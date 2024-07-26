@@ -2,8 +2,8 @@
  * @Author       : DragonYH 1016633827@qq.com
  * @Date         : 2024-07-20 20:10:11
  * @LastEditors  : DragonYH 1016633827@qq.com
- * @LastEditTime : 2024-07-20 20:19:31
- * @FilePath     : \EX_Single_Phase_Rectifier_H743IIT6_Hollies\User\Src\ad7606.c
+ * @LastEditTime : 2024-07-26 11:49:18
+ * @FilePath     : \CP_Single_Phase_Rectifier_H743IIT6_Hollies_Provincial\User\Src\ad7606.c
  * @Description  : AD7606 spi驱动实现
  *
  * Copyright (c) 2024 by DragonYH, All Rights Reserved.

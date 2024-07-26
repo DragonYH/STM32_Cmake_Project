@@ -2,7 +2,7 @@
  * @Author       : DragonYH 1016633827@qq.com
  * @Date         : 2024-07-20 18:37:44
  * @LastEditors  : DragonYH 1016633827@qq.com
- * @LastEditTime : 2024-07-26 11:40:15
+ * @LastEditTime : 2024-07-26 11:50:01
  * @FilePath     : \CP_Single_Phase_Rectifier_H743IIT6_Hollies_Provincial\User\Src\user_task.c
  * @Description  : 用于FreeRTOS任务的实现
  *
@@ -57,10 +57,10 @@ void StartStateLED(void *argument)
     {
         switch (deviceState)
         {
-        case RUN: /* 启动状态 */
+        case START: /* 启动状态 */
             HAL_GPIO_WritePin(GPIOI, GPIO_PIN_0, GPIO_PIN_SET);
             break;
-        case START: /* 正常运行 */
+        case RUN: /* 正常运行 */
             HAL_GPIO_TogglePin(GPIOI, GPIO_PIN_0);
             osDelay(100);
             HAL_GPIO_TogglePin(GPIOI, GPIO_PIN_0);

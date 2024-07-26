@@ -2,8 +2,8 @@
  * @Author       : DragonYH 1016633827@qq.com
  * @Date         : 2024-07-20 20:10:11
  * @LastEditors  : DragonYH 1016633827@qq.com
- * @LastEditTime : 2024-07-21 10:06:11
- * @FilePath     : \EX_Single_Phase_Rectifier_H743IIT6_Hollies\User\Src\pid.c
+ * @LastEditTime : 2024-07-26 11:48:40
+ * @FilePath     : \CP_Single_Phase_Rectifier_H743IIT6_Hollies_Provincial\User\Src\pid.c
  * @Description  : PID控制器
  *
  * Copyright (c) 2024 by DragonYH, All Rights Reserved.
