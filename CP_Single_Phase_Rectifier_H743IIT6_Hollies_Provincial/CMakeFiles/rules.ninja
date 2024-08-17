@@ -35,8 +35,10 @@ rule C_COMPILER__CP_Single_Phase_Rectifier_H743IIT6_Hollies_Provincial_unscanned
 # Rule for linking C executable.
 
 rule C_EXECUTABLE_LINKER__CP_Single_Phase_Rectifier_H743IIT6_Hollies_Provincial_Debug
-  command = cmd.exe /C "$PRE_LINK && E:\Software\STM32Cube\STM32CubeCLT\GNU-tools-for-STM32\bin\arm-none-eabi-gcc.exe $FLAGS -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard  -T "D:/User/Document/Project/STM32_Cmake_Project/CP_Single_Phase_Rectifier_H743IIT6_Hollies_Provincial/STM32H743IITx_FLASH.ld" --specs=nano.specs -Wl,-Map=CP_Single_Phase_Rectifier_H743IIT6_Hollies_Provincial.map -Wl,--gc-sections -Wl,--start-group -lc -lm -Wl,--end-group -Wl,--print-memory-usage $LINK_FLAGS $in -o $TARGET_FILE $LINK_PATH $LINK_LIBRARIES && $POST_BUILD"
+  command = cmd.exe /C "$PRE_LINK && E:\Software\STM32Cube\STM32CubeCLT\GNU-tools-for-STM32\bin\arm-none-eabi-gcc.exe $FLAGS -mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard  -T "D:/User/Document/Project/STM32_Cmake_Project/CP_Single_Phase_Rectifier_H743IIT6_Hollies_Provincial/STM32H743IITx_FLASH.ld" --specs=nano.specs -Wl,-Map=CP_Single_Phase_Rectifier_H743IIT6_Hollies_Provincial.map -Wl,--gc-sections -Wl,--start-group -lc -lm -Wl,--end-group -Wl,--print-memory-usage $LINK_FLAGS @$RSP_FILE -o $TARGET_FILE  && $POST_BUILD"
   description = Linking C executable $TARGET_FILE
+  rspfile = $RSP_FILE
+  rspfile_content = $in $LINK_PATH $LINK_LIBRARIES
   restat = $RESTAT
 
 
