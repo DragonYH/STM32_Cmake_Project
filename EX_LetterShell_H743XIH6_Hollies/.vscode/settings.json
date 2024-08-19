@@ -1,0 +1,16 @@
+{
+    "files.associations": {
+        "*.nsp": "json",
+        "*.yml": "yaml",
+        "*.toml": "yaml",
+        "shell.h": "c",
+        "shell_cfg.h": "c",
+        "usbd_ioreq.h": "c",
+        "usbd_cdc_if.h": "c",
+        "usb_device.h": "c",
+        "semphr.h": "c",
+        "user_usb_serial.h": "c",
+        "stdint.h": "c",
+        "stdint-gcc.h": "c"
+    }
+}
