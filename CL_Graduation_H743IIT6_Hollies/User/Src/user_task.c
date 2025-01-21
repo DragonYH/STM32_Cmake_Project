@@ -9,6 +9,7 @@
 #include "usbd_cdc_if.h"
 #include <stdio.h>
 #include "adc.h"
+#include "oled.h"
 
 char chipTemp[8] = {0};
 float mcuTemperature = 0.0f;
@@ -58,6 +59,30 @@ void StartChipTemperatureTask(void *argument)
 
         osDelay(500);
     }
+}
+
+void StartOLEDDisplayTask(void *argument)
+{
+    /* USER CODE BEGIN StartOLEDDisplayTask */
+    UNUSED(argument);
+    OLED_Init();
+    /* Infinite loop */
+    for (;;)
+    {
+        char temp[32] = {0};
+        snprintf(temp, sizeof(temp), "TTTTTTTTTTTTTTT");
+        OLED_ShowString(0, 0, (uint8_t *)temp, 16);
+        OLED_ShowString(0, 16, (uint8_t *)temp, 16);
+        OLED_ShowString(0, 32, (uint8_t *)temp, 16);
+        OLED_ShowString(0, 48, (uint8_t *)temp, 16);
+        OLED_ShowString(0, 64, (uint8_t *)temp, 16);
+        OLED_ShowString(0, 80, (uint8_t *)temp, 16);
+        OLED_ShowString(0, 96, (uint8_t *)temp, 16);
+        OLED_ShowString(0, 112, (uint8_t *)temp, 16);
+        OLED_Refresh();
+        osDelay(100);
+    }
+    /* USER CODE END StartOLEDDisplayTask */
 }
 
 static void userFuncGetChipTemperature(void)

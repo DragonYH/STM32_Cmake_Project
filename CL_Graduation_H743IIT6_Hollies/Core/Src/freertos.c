@@ -28,6 +28,7 @@
 #include "user_task.h"
 #include "shell.h"
 #include "user_shell.h"
+#include "oled.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -52,23 +53,30 @@
 /* Definitions for defaultTask */
 osThreadId_t defaultTaskHandle;
 const osThreadAttr_t defaultTask_attributes = {
-  .name = "defaultTask",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
+    .name = "defaultTask",
+    .stack_size = 128 * 4,
+    .priority = (osPriority_t)osPriorityNormal,
 };
 /* Definitions for letterShellTask */
 osThreadId_t letterShellTaskHandle;
 const osThreadAttr_t letterShellTask_attributes = {
-  .name = "letterShellTask",
-  .stack_size = 1024 * 4,
-  .priority = (osPriority_t) osPriorityBelowNormal7,
+    .name = "letterShellTask",
+    .stack_size = 1024 * 4,
+    .priority = (osPriority_t)osPriorityBelowNormal7,
 };
 /* Definitions for chipTemperature */
 osThreadId_t chipTemperatureHandle;
 const osThreadAttr_t chipTemperature_attributes = {
-  .name = "chipTemperature",
-  .stack_size = 512 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
+    .name = "chipTemperature",
+    .stack_size = 512 * 4,
+    .priority = (osPriority_t)osPriorityNormal,
+};
+/* Definitions for OLEDDisplayTask */
+osThreadId_t OLEDDisplayTaskHandle;
+const osThreadAttr_t OLEDDisplayTask_attributes = {
+    .name = "OLEDDisplayTask",
+    .stack_size = 512 * 4,
+    .priority = (osPriority_t)osPriorityNormal,
 };
 
 /* Private function prototypes -----------------------------------------------*/
@@ -79,16 +87,18 @@ const osThreadAttr_t chipTemperature_attributes = {
 void StartDefaultTask(void *argument);
 void shellTask(void *argument);
 void StartChipTemperatureTask(void *argument);
+void StartOLEDDisplayTask(void *argument);
 
 extern void MX_USB_DEVICE_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
 /**
-  * @brief  FreeRTOS initialization
-  * @param  None
-  * @retval None
-  */
-void MX_FREERTOS_Init(void) {
+ * @brief  FreeRTOS initialization
+ * @param  None
+ * @retval None
+ */
+void MX_FREERTOS_Init(void)
+{
   /* USER CODE BEGIN Init */
   MX_USB_DEVICE_Init();
   userShellInit();
@@ -115,10 +125,13 @@ void MX_FREERTOS_Init(void) {
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
   /* creation of letterShellTask */
-  letterShellTaskHandle = osThreadNew(shellTask, (void*) &shell, &letterShellTask_attributes);
+  letterShellTaskHandle = osThreadNew(shellTask, (void *)&shell, &letterShellTask_attributes);
 
   /* creation of chipTemperature */
   chipTemperatureHandle = osThreadNew(StartChipTemperatureTask, NULL, &chipTemperature_attributes);
+
+  /* creation of OLEDDisplayTask */
+  OLEDDisplayTaskHandle = osThreadNew(StartOLEDDisplayTask, NULL, &OLEDDisplayTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -127,7 +140,6 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN RTOS_EVENTS */
   /* add events, ... */
   /* USER CODE END RTOS_EVENTS */
-
 }
 
 /* USER CODE BEGIN Header_StartDefaultTask */
@@ -189,8 +201,26 @@ __weak void StartChipTemperatureTask(void *argument)
   /* USER CODE END StartChipTemperatureTask */
 }
 
+/* USER CODE BEGIN Header_StartOLEDDisplayTask */
+/**
+ * @brief Function implementing the OLEDDisplayTask thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_StartOLEDDisplayTask */
+__weak void StartOLEDDisplayTask(void *argument)
+{
+  /* USER CODE BEGIN StartOLEDDisplayTask */
+  UNUSED(argument);
+  /* Infinite loop */
+  for (;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END StartOLEDDisplayTask */
+}
+
 /* Private application code --------------------------------------------------*/
 /* USER CODE BEGIN Application */
 
 /* USER CODE END Application */
-
