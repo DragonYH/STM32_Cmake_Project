@@ -45,14 +45,22 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined library search paths
 )
 
+# 添加User文件夹下的所有源文件
+aux_source_directory(User/Src USER_SOURCES)
+aux_source_directory(User/Modules/LetterShell/Src SHELL_SOURCES)
+
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
+    ${USER_SOURCES}
+    ${SHELL_SOURCES}
 )
 
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
+    User/Inc
+    User/Modules/LetterShell/Inc
 )
 
 # Add project symbols (macros)
@@ -65,4 +73,9 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
     stm32cubemx
 
     # Add user defined libraries
+)
+
+# 添加链接器选项以支持float类型的printf
+target_link_options(${CMAKE_PROJECT_NAME} PRIVATE
+    -u _printf_float
 )
