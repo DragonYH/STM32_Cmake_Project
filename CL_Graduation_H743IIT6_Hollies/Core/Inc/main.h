@@ -65,6 +65,15 @@ void Error_Handler(void);
 #define OLED_RST_GPIO_Port GPIOC
 #define OLED_CS_Pin GPIO_PIN_1
 #define OLED_CS_GPIO_Port GPIOB
+#define AD7606_RST_Pin GPIO_PIN_3
+#define AD7606_RST_GPIO_Port GPIOG
+#define AD7606_BUSY_Pin GPIO_PIN_6
+#define AD7606_BUSY_GPIO_Port GPIOG
+#define AD7606_BUSY_EXTI_IRQn EXTI9_5_IRQn
+#define AD7606_CS_Pin GPIO_PIN_7
+#define AD7606_CS_GPIO_Port GPIOG
+#define IR2104_SD_Pin GPIO_PIN_8
+#define IR2104_SD_GPIO_Port GPIOA
 #define LED0_Pin GPIO_PIN_0
 #define LED0_GPIO_Port GPIOI
 #define OLED_DC_Pin GPIO_PIN_6
