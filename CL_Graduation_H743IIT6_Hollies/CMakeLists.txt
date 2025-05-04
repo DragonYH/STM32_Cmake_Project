@@ -49,6 +49,13 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 aux_source_directory(User/Src USER_SOURCES)
 aux_source_directory(User/Modules/LetterShell/Src SHELL_SOURCES)
 aux_source_directory(User/Modules/OLED/Src OLED_SOURCES)
+aux_source_directory(User/Modules/INA228/Src INA228_SOURCES)
+aux_source_directory(User/Modules/AD7606/Src AD7606_SOURCES)
+aux_source_directory(User/Modules/PID/Src PID_SOURCES)
+aux_source_directory(User/Modules/SVPWM/Src SVPWM_SOURCES)
+aux_source_directory(User/Modules/THREE_PHASE_INVERTER/Src THREE_PHASE_INVERTER_SOURCES)
+aux_source_directory(User/Modules/THREE_PHASE_RECTIFIER/Src THREE_PHASE_RECTIFIER_SOURCES)
+aux_source_directory(User/Modules/ARM_MATH/Src THREE_PHASE_RECTIFIER_SOURCES)
 
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
@@ -56,6 +63,13 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     ${USER_SOURCES}
     ${SHELL_SOURCES}
     ${OLED_SOURCES}
+    ${INA228_SOURCES}
+    ${AD7606_SOURCES}
+    ${PID_SOURCES}
+    ${SVPWM_SOURCES}
+    ${THREE_PHASE_INVERTER_SOURCES}
+    ${THREE_PHASE_RECTIFIER_SOURCES}
+    ${ARM_MATH}
 )
 
 # Add include paths
@@ -64,6 +78,13 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     User/Inc
     User/Modules/LetterShell/Inc
     User/Modules/OLED/Inc
+    User/Modules/INA228/Inc
+    User/Modules/AD7606/Inc
+    User/Modules/PID/Inc
+    User/Modules/SVPWM/Inc
+    User/Modules/THREE_PHASE_INVERTER/Inc
+    User/Modules/THREE_PHASE_RECTIFIER/Inc
+    User/Modules/ARM_MATH/Inc
 )
 
 # Add project symbols (macros)
@@ -71,11 +92,18 @@ target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined symbols
 )
 
+# 添加库文件路径
+target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
+    User/Modules/ARM_MATH/Lib
+    # Add user defined library search paths
+)
+
 # Add linked libraries
 target_link_libraries(${CMAKE_PROJECT_NAME}
     stm32cubemx
 
     # Add user defined libraries
+    arm_cortexM7lfdp_math
 )
 
 # 添加链接器选项以支持float类型的printf
