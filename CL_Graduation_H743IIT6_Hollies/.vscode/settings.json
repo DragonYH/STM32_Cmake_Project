@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "*.nsp": "json",
+        "*.yml": "yaml",
+        "*.toml": "yaml",
+        "main.h": "c",
+        "stm32h7xx_hal.h": "c",
+        "tim.h": "c",
+        "user_shell.h": "c"
+    }
+}

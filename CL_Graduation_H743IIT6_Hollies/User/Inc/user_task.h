@@ -3,6 +3,7 @@
 
 void StartDefaultTask(void *argument);
 void StartChipTemperatureTask(void *argument);
-void StartOLEDDisplayTask(void *argument);
+void StartOledDisplayTask(void *argument);
+void StartKeyTask(void *argument);
 
 #endif

@@ -28,7 +28,10 @@
 #include "user_task.h"
 #include "shell.h"
 #include "user_shell.h"
-#include "oled.h"
+#include "ad7606.h"
+#include "tim.h"
+#include "three_phase_rectifier.h"
+#include "user_global.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -71,11 +74,18 @@ const osThreadAttr_t chipTemperature_attributes = {
   .stack_size = 512 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
-/* Definitions for OLEDDisplayTask */
-osThreadId_t OLEDDisplayTaskHandle;
-const osThreadAttr_t OLEDDisplayTask_attributes = {
-  .name = "OLEDDisplayTask",
+/* Definitions for oledDisplayTask */
+osThreadId_t oledDisplayTaskHandle;
+const osThreadAttr_t oledDisplayTask_attributes = {
+  .name = "oledDisplayTask",
   .stack_size = 512 * 4,
+  .priority = (osPriority_t) osPriorityNormal,
+};
+/* Definitions for keyTask */
+osThreadId_t keyTaskHandle;
+const osThreadAttr_t keyTask_attributes = {
+  .name = "keyTask",
+  .stack_size = 256 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
 
@@ -87,7 +97,8 @@ const osThreadAttr_t OLEDDisplayTask_attributes = {
 void StartDefaultTask(void *argument);
 void shellTask(void *argument);
 void StartChipTemperatureTask(void *argument);
-void StartOLEDDisplayTask(void *argument);
+void StartOledDisplayTask(void *argument);
+void StartKeyTask(void *argument);
 
 extern void MX_USB_DEVICE_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
@@ -99,8 +110,11 @@ void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
   */
 void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
+  ad7606_Init();
   MX_USB_DEVICE_Init();
   userShellInit();
+  pll_Init_V(&signal_V, 50, 20000);
+  ad7606_Start(&htim2, TIM_CHANNEL_1);
   /* USER CODE END Init */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -129,8 +143,11 @@ void MX_FREERTOS_Init(void) {
   /* creation of chipTemperature */
   chipTemperatureHandle = osThreadNew(StartChipTemperatureTask, NULL, &chipTemperature_attributes);
 
-  /* creation of OLEDDisplayTask */
-  OLEDDisplayTaskHandle = osThreadNew(StartOLEDDisplayTask, NULL, &OLEDDisplayTask_attributes);
+  /* creation of oledDisplayTask */
+  oledDisplayTaskHandle = osThreadNew(StartOledDisplayTask, NULL, &oledDisplayTask_attributes);
+
+  /* creation of keyTask */
+  keyTaskHandle = osThreadNew(StartKeyTask, NULL, &keyTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -201,23 +218,42 @@ __weak void StartChipTemperatureTask(void *argument)
   /* USER CODE END StartChipTemperatureTask */
 }
 
-/* USER CODE BEGIN Header_StartOLEDDisplayTask */
+/* USER CODE BEGIN Header_StartOledDisplayTask */
 /**
- * @brief Function implementing the OLEDDisplayTask thread.
+ * @brief Function implementing the oledDisplayTask thread.
  * @param argument: Not used
  * @retval None
  */
-/* USER CODE END Header_StartOLEDDisplayTask */
-__weak void StartOLEDDisplayTask(void *argument)
+/* USER CODE END Header_StartOledDisplayTask */
+__weak void StartOledDisplayTask(void *argument)
 {
-  /* USER CODE BEGIN StartOLEDDisplayTask */
+  /* USER CODE BEGIN StartOledDisplayTask */
   UNUSED(argument);
   /* Infinite loop */
   for (;;)
   {
     osDelay(1);
   }
-  /* USER CODE END StartOLEDDisplayTask */
+  /* USER CODE END StartOledDisplayTask */
+}
+
+/* USER CODE BEGIN Header_StartKeyTask */
+/**
+ * @brief Function implementing the keyTask thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_StartKeyTask */
+__weak void StartKeyTask(void *argument)
+{
+  /* USER CODE BEGIN StartKeyTask */
+  UNUSED(argument);
+  /* Infinite loop */
+  for (;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END StartKeyTask */
 }
 
 /* Private application code --------------------------------------------------*/
