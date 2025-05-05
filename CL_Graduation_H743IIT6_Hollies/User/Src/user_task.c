@@ -21,8 +21,6 @@
 
 char chipTemp[8] = {0};
 float mcuTemperature = 0.0f;
-float setVolt = 24.0f;
-float setCurr = 1.0f;
 
 void StartDefaultTask(void *argument)
 {

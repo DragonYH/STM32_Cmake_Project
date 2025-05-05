@@ -16,13 +16,13 @@
 
 // 全局变量声明
 extern const INA228_Handle INA228_0;
-extern float U;
-extern float I;
-extern float Utarget;
-extern float Iref;
-extern float M;
-extern pll_Signal_V *signal_V;
-extern pll_Signal_I *signal_I;
+extern float dcVolt;           // 直流电压
+extern float dcCurr;           // 直流电流
+extern float setVolt;          // 输出电压设定值
+extern float setCurr;          // 输出电流设定值
+extern float M;                // 调制比
+extern pll_Signal_V *signal_V; // 交流电压信号数据
+extern pll_Signal_I *signal_I; // 交流电流信号数据
 
 // 运行状态枚举
 enum run_state
