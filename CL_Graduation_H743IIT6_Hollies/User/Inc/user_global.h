@@ -16,13 +16,14 @@
 
 // 全局变量声明
 extern const INA228_Handle INA228_0;
-extern float dcVolt;           // 直流电压
-extern float dcCurr;           // 直流电流
-extern float setVolt;          // 输出电压设定值
-extern float setCurr;          // 输出电流设定值
-extern float M;                // 调制比
-extern pll_Signal_V *signal_V; // 交流电压信号数据
-extern pll_Signal_I *signal_I; // 交流电流信号数据
+extern float dcVolt;                   // 直流电压
+extern float dcCurr;                   // 直流电流
+extern float setVolt;                  // 输出电压设定值
+extern float setCurr;                  // 输出电流设定值
+extern float setPF;                    // 功率因数设定值
+extern float M;                        // 调制比
+extern three_Phase_Signal_V *signal_V; // 交流电压信号数据
+extern three_Phase_Signal_I *signal_I; // 交流电流信号数据
 
 // 运行状态枚举
 enum run_state
@@ -43,11 +44,12 @@ enum input_output_mode
 extern volatile enum input_output_mode inputMode;  // 输入模式
 extern volatile enum input_output_mode outputMode; // 输出模式
 
-enum run_mode
+enum set_mode
 {
-    VOLT_STAB = 0, // 电压稳定模式
-    CURR_STAB = 1, // 电流稳定模式
+    VOLT_SET = 0, // 设置电压上限
+    CURR_SET = 1, // 设置电流上限
+    PF_SET = 2    // 设置功率因数
 };
-extern volatile enum run_mode runMode; // 运行模式
+extern volatile enum set_mode setMode; // 运行模式
 
 #endif // __USER_GLOBAL_H

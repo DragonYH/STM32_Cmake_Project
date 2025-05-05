@@ -12,9 +12,9 @@ static void Duty_Calculation(float Ta, float Tb, float Tc, float Ts);
  * @param  signal PLL信号输入结构体指针
  */
 #if Rectifier_Or_Inverter
-void svpwm_Control(pll_Signal_I *signal)
+void svpwm_Control(three_Phase_Signal_I *signal)
 #else
-void svpwm_Control(pll_Signal_V *signal)
+void svpwm_Control(three_Phase_Signal_V *signal)
 #endif
 {
     // 计算中间变量

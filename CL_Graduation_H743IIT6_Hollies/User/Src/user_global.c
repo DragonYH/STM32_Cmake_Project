@@ -75,12 +75,13 @@ float dcVolt = 0;      // 直流电压
 float dcCurr = 0;      // 直流电流
 float setVolt = 24.0f; // 输出电压设定值
 float setCurr = 1.0f;  // 输出电流设定值
+float setPF = 1.f;     // 功率因数设定值
 float M = 1.f;         // 调制比
 
-pll_Signal_V *signal_V;
-pll_Signal_I *signal_I;
+three_Phase_Signal_V *signal_V;
+three_Phase_Signal_I *signal_I;
 
 volatile enum run_state runState = STOP;         // 运行状态
 volatile enum input_output_mode inputMode = DC;  // 输入模式
 volatile enum input_output_mode outputMode = DC; // 输出模式
-volatile enum run_mode runMode = VOLT_STAB;      // 运行模式
+volatile enum set_mode setMode = VOLT_SET;       // 运行模式

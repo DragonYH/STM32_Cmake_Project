@@ -6,7 +6,7 @@
 #include "malloc.h"
 #include "arm_math.h"
 
-static void pll_Clarke(pll_Signal_Basic *basic);
+static void pll_Clarke(three_Phase_Signal_Basic *basic);
 
 /**
  * @brief 电压信号参数初始化
@@ -15,11 +15,11 @@ static void pll_Clarke(pll_Signal_Basic *basic);
  * @param F 采样频率(典型值:20000)
  * @param Umax 交流电压峰值
  */
-void pll_Init_V(pll_Signal_V **signal, float f, uint16_t F)
+void three_Phase_Init_V(three_Phase_Signal_V **signal, float f, uint16_t F)
 {
     // 分配内存空间
-    (*signal) = (pll_Signal_V *)malloc(sizeof(pll_Signal_V));
-    (*signal)->basic = (pll_Signal_Basic *)malloc(sizeof(pll_Signal_Basic));
+    (*signal) = (three_Phase_Signal_V *)malloc(sizeof(three_Phase_Signal_V));
+    (*signal)->basic = (three_Phase_Signal_Basic *)malloc(sizeof(three_Phase_Signal_Basic));
     (*signal)->pid = (PID *)malloc(sizeof(PID));
 
     // 初始化赋值
@@ -54,10 +54,10 @@ void pll_Init_V(pll_Signal_V **signal, float f, uint16_t F)
  * @param pi_kp PI控制器kp参数
  * @param pi_ki PI控制器ki参数
  */
-void pll_Init_I(pll_Signal_I **signal, float f, uint16_t F)
+void three_Phase_Init_I(three_Phase_Signal_I **signal, float f, uint16_t F)
 {
-    (*signal) = (pll_Signal_I *)malloc(sizeof(pll_Signal_I));
-    (*signal)->basic = (pll_Signal_Basic *)malloc(sizeof(pll_Signal_Basic));
+    (*signal) = (three_Phase_Signal_I *)malloc(sizeof(three_Phase_Signal_I));
+    (*signal)->basic = (three_Phase_Signal_Basic *)malloc(sizeof(three_Phase_Signal_Basic));
 
     (*signal)->pid_d = (PID *)malloc(sizeof(PID));
     (*signal)->pid_q = (PID *)malloc(sizeof(PID));
@@ -93,7 +93,7 @@ void pll_Init_I(pll_Signal_I **signal, float f, uint16_t F)
  * @brief 电压锁相控制
  * @param signal_V 电压信号指针
  */
-void pll_Control_V(pll_Signal_V *signal_V)
+void three_Phase_PLL_V(three_Phase_Signal_V *signal_V)
 {
     // 先对信号进行clarke变换
     pll_Clarke(signal_V->basic);
@@ -115,7 +115,7 @@ void pll_Control_V(pll_Signal_V *signal_V)
  * @param Iset 电流设定值(有效值)
  * @param PF 功率因数
  */
-void pll_Control_I(pll_Signal_I *signal_I, pll_Signal_V *signal_V, float Iset, float PF)
+void three_Phase_Loop_I(three_Phase_Signal_I *signal_I, three_Phase_Signal_V *signal_V, float Iset, float PF)
 {
     // 先对信号进行clarke变换
     pll_Clarke(signal_I->basic);
@@ -150,7 +150,7 @@ void pll_Control_I(pll_Signal_I *signal_I, pll_Signal_V *signal_V, float Iset, f
  * @brief clarke变换
  * @param basic 信号基本变量指针
  */
-static void pll_Clarke(pll_Signal_Basic *basic)
+static void pll_Clarke(three_Phase_Signal_Basic *basic)
 {
     basic->clarke_alpha = (2.f * basic->input_a - basic->input_b - basic->input_c) / 3.f;
     basic->clarke_beta = 0.57735026f * (basic->input_b - basic->input_c);
@@ -159,7 +159,7 @@ static void pll_Clarke(pll_Signal_Basic *basic)
  * @brief 释放内存
  * @param signal 信号指针
  */
-void pll_Free_V(pll_Signal_V *signal)
+void three_Phase_Free_V(three_Phase_Signal_V *signal)
 {
     free(signal->basic);
     free(signal->pid);
@@ -169,7 +169,7 @@ void pll_Free_V(pll_Signal_V *signal)
  * @brief 释放内存
  * @param signal 信号指针
  */
-void pll_Free_I(pll_Signal_I *signal)
+void three_Phase_Free_I(three_Phase_Signal_I *signal)
 {
     free(signal->basic);
     free(signal->pid_d);
