@@ -55,7 +55,7 @@ aux_source_directory(User/Modules/PID/Src PID_SOURCES)
 aux_source_directory(User/Modules/SVPWM/Src SVPWM_SOURCES)
 aux_source_directory(User/Modules/THREE_PHASE_INVERTER/Src THREE_PHASE_INVERTER_SOURCES)
 aux_source_directory(User/Modules/THREE_PHASE_RECTIFIER/Src THREE_PHASE_RECTIFIER_SOURCES)
-aux_source_directory(User/Modules/ARM_MATH/Src THREE_PHASE_RECTIFIER_SOURCES)
+aux_source_directory(User/Modules/ARM_MATH/Src ARM_MATH_SOURCES)
 
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
@@ -69,7 +69,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     ${SVPWM_SOURCES}
     ${THREE_PHASE_INVERTER_SOURCES}
     ${THREE_PHASE_RECTIFIER_SOURCES}
-    ${ARM_MATH}
+    ${ARM_MATH_SOURCES}
 )
 
 # Add include paths
