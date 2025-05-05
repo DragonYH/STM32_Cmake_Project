@@ -92,15 +92,15 @@ void StartOledDisplayTask(void *argument)
         char runState_s[6] = {0};
         char inputMode_s[4] = {0};
         char outputMode_s[4] = {0};
-        char runMode_s[2] = {0};
+        char setMode_s[3] = {0};
 
         switch (runState)
         {
         case STOP:
-            snprintf(runState_s, sizeof(runState_s), "STOP");
+            snprintf(runState_s, sizeof(runState_s), "STOP ");
             break;
         case RUN:
-            snprintf(runState_s, sizeof(runState_s), "RUN");
+            snprintf(runState_s, sizeof(runState_s), "RUN  ");
             break;
         default:
             snprintf(runState_s, sizeof(runState_s), "FAULT");
@@ -110,7 +110,7 @@ void StartOledDisplayTask(void *argument)
         switch (inputMode)
         {
         case DC:
-            snprintf(inputMode_s, sizeof(inputMode_s), "DC");
+            snprintf(inputMode_s, sizeof(inputMode_s), "DC ");
             break;
         case AC_SINGAL:
             snprintf(inputMode_s, sizeof(inputMode_s), "AC1");
@@ -126,7 +126,7 @@ void StartOledDisplayTask(void *argument)
         switch (outputMode)
         {
         case DC:
-            snprintf(outputMode_s, sizeof(outputMode_s), "DC");
+            snprintf(outputMode_s, sizeof(outputMode_s), "DC ");
             break;
         case AC_SINGAL:
             snprintf(outputMode_s, sizeof(outputMode_s), "AC1");
@@ -139,56 +139,54 @@ void StartOledDisplayTask(void *argument)
             break;
         }
 
-        switch (runMode)
+        switch (setMode)
         {
-        case VOLT_STAB:
-            snprintf(runMode_s, sizeof(runMode_s), "V");
+        case VOLT_SET:
+            snprintf(setMode_s, sizeof(setMode_s), "V ");
             break;
-        case CURR_STAB:
-            snprintf(runMode_s, sizeof(runMode_s), "I");
+        case CURR_SET:
+            snprintf(setMode_s, sizeof(setMode_s), "I ");
+            break;
+        case PF_SET:
+            snprintf(setMode_s, sizeof(setMode_s), "PF");
             break;
         default:
-            snprintf(runMode_s, sizeof(inputMode_s), "0");
+            snprintf(setMode_s, sizeof(setMode_s), "0");
             break;
         }
         // 显示标题栏
-        snprintf(temp, sizeof(temp), "%-5s %-3s %-3s %s", runState_s, inputMode_s, outputMode_s, runMode_s);
-        OLED_ShowString(0, 0, (uint8_t *)"State In  Out Mode", 12);
+        snprintf(temp, sizeof(temp), "%-5s %-3s %-3s", runState_s, inputMode_s, outputMode_s);
+        OLED_ShowString(0, 0, (uint8_t *)"State In  Out", 12);
         OLED_ShowString(0, 12, (uint8_t *)temp, 12);
         // 显示输入电压和电流
         memset(temp, 0, sizeof(temp));
-        OLED_ShowString(0, 24, (uint8_t *)"In  V(V) C(A)", 12);
+        OLED_ShowString(0, 24, (uint8_t *)"In  V(V)  C(A)", 12);
 
         memset(temp, 0, sizeof(temp));
-        snprintf(temp, sizeof(temp), "A   %-4.2f %-4.2f", signal_V->basic->input_a, signal_V->basic->input_a);
+        snprintf(temp, sizeof(temp), "A   %-5.2f %-4.2f", signal_V->basic->rms_a, signal_I->basic->rms_a);
         OLED_ShowString(0, 36, (uint8_t *)temp, 12);
 
         memset(temp, 0, sizeof(temp));
-        snprintf(temp, sizeof(temp), "B   %-4.2f %-4.2f", signal_V->basic->input_b, signal_V->basic->input_b);
+        snprintf(temp, sizeof(temp), "B   %-5.2f %-4.2f", signal_V->basic->rms_b, signal_I->basic->rms_b);
         OLED_ShowString(0, 48, (uint8_t *)temp, 12);
 
         memset(temp, 0, sizeof(temp));
-        snprintf(temp, sizeof(temp), "C   %-4.2f %-4.2f", signal_V->basic->input_c, signal_V->basic->input_c);
+        snprintf(temp, sizeof(temp), "C   %-5.2f %-4.2f", signal_V->basic->rms_c, signal_I->basic->rms_c);
         OLED_ShowString(0, 60, (uint8_t *)temp, 12);
         // 显示输出电压和电流
         memset(temp, 0, sizeof(temp));
-        if (runMode == VOLT_STAB)
-        {
-            OLED_ShowString(0, 72, (uint8_t *)"Out V(V) C(A) Set(V)", 12);
-            snprintf(temp, sizeof(temp), "DC  %-4.2f %-4.2f %-4.2f", signal_V->basic->input_c, signal_V->basic->input_c, setVolt);
-            OLED_ShowString(0, 84, (uint8_t *)temp, 12);
-        }
-        else if (runMode == CURR_STAB)
-        {
-            OLED_ShowString(0, 72, (uint8_t *)"Out V(V) C(A) Set(A)", 12);
-            snprintf(temp, sizeof(temp), "DC  %-4.2f %-4.2f %-4.2f", signal_V->basic->input_c, signal_V->basic->input_c, setCurr);
-            OLED_ShowString(0, 84, (uint8_t *)temp, 12);
-        }
-
+        OLED_ShowString(0, 72, (uint8_t *)"Out V(V)  C(A)", 12);
+        snprintf(temp, sizeof(temp), "DC  %-5.2f %-4.2f", 0.f, 0.f);
+        OLED_ShowString(0, 84, (uint8_t *)temp, 12);
+        // 显示设置
+        memset(temp, 0, sizeof(temp));
+        OLED_ShowString(0, 96, (uint8_t *)"Set V(V)  C(A) PF", 12);
+        snprintf(temp, sizeof(temp), "%s  %-5.2f %-4.2f %-4.2f", setMode_s, setVolt, setCurr, setPF);
+        OLED_ShowString(0, 108, (uint8_t *)temp, 12);
         // 显示温度
         memset(temp, 0, sizeof(temp));
         snprintf(temp, sizeof(temp), "%s", chipTemp);
-        OLED_ShowString(98, 112, (uint8_t *)temp, 12);
+        OLED_ShowString(98, 0, (uint8_t *)temp, 12);
 
         OLED_Refresh();
         osDelay(100);
@@ -224,35 +222,47 @@ void StartKeyTask(void *argument)
             {
                 while (isKEY2)
                     ;
-                if (runMode == VOLT_STAB)
+                if (setMode == VOLT_SET)
                 {
-                    runMode = CURR_STAB;
+                    setMode = CURR_SET;
                 }
-                else if (runMode == CURR_STAB)
+                else if (setMode == CURR_SET)
                 {
-                    runMode = VOLT_STAB;
+                    setMode = PF_SET;
+                }
+                else if (setMode == PF_SET)
+                {
+                    setMode = VOLT_SET;
                 }
             }
             else if (isKEY3)
             {
-                if (runMode == VOLT_STAB)
+                if (setMode == VOLT_SET)
                 {
                     setVolt += 0.1;
                 }
-                else if (runMode == CURR_STAB)
+                else if (setMode == CURR_SET)
                 {
                     setCurr += 0.1;
+                }
+                else if (setMode == PF_SET)
+                {
+                    setPF += 0.01;
                 }
             }
             else if (isKEY4)
             {
-                if (runMode == VOLT_STAB)
+                if (setMode == VOLT_SET)
                 {
                     setVolt -= 0.1;
                 }
-                else if (runMode == CURR_STAB)
+                else if (setMode == CURR_SET)
                 {
                     setCurr -= 0.1;
+                }
+                else if (setMode == PF_SET)
+                {
+                    setPF -= 0.01;
                 }
             }
         }
