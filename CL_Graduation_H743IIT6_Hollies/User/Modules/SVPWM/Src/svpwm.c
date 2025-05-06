@@ -15,6 +15,9 @@ static void Duty_Calculation(float Ta, float Tb, float Tc, float Ts);
 void svpwm_Control(float Ualpha, float Ubeta, float Ts)
 {
     // 计算中间变量
+    Ualpha = M * Ualpha;
+    Ubeta = M * Ubeta;
+
     float Ualpha_ = 1.7320508f * Ualpha * Ts;
     float Ubeta_ = Ubeta * Ts;
 

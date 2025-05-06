@@ -6,10 +6,6 @@
 
 #define TIM_PERIOD 5999
 
-#if Rectifier_Or_Inverter
-void svpwm_Control(three_Phase_Signal_I *signal);
-#else
-void svpwm_Control(three_Phase_Signal_V *signal);
-#endif
+void svpwm_Control(float Ualpha, float Ubeta, float Ts);
 
 #endif
