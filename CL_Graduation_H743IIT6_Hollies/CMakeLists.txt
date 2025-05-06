@@ -43,6 +43,7 @@ add_subdirectory(cmake/stm32cubemx)
 # Link directories setup
 target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined library search paths
+    User/Modules/ARM_MATH/Lib
 )
 
 # 添加User文件夹下的所有源文件
@@ -90,12 +91,6 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
 # Add project symbols (macros)
 target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined symbols
-)
-
-# 添加库文件路径
-target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
-    User/Modules/ARM_MATH/Lib
-    # Add user defined library search paths
 )
 
 # Add linked libraries
