@@ -5,6 +5,7 @@
 #include "spi.h"
 #include "user_global.h"
 #include "arm_math.h"
+#include "svpwm.h"
 
 static void getVoltageCurrent(void);
 static void calcEffectiveValue(void);
@@ -20,6 +21,27 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
     {
         getVoltageCurrent();  // 获取电压电流
         calcEffectiveValue(); // 计算有效值
+
+        if (runState == RUN)
+        {
+            switch (inputMode)
+            {
+            case DC:
+                if (outputMode == AC_SINGLE)
+                {
+                }
+                else if (outputMode == AC_THREE)
+                {
+                    three_Phase_PLL_V(signal_V);                                                                     // 电压锁相
+                    svpwm_Control(signal_V->basic->clarke_alpha, signal_V->basic->clarke_beta, signal_V->basic->Ts); // SVPWM控制
+                }
+                break;
+            case AC_SINGLE:
+                break;
+            case AC_THREE:
+                break;
+            }
+        }
     }
 }
 
