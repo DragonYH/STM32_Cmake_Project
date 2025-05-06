@@ -54,7 +54,7 @@ aux_source_directory(User/Modules/INA228/Src INA228_SOURCES)
 aux_source_directory(User/Modules/AD7606/Src AD7606_SOURCES)
 aux_source_directory(User/Modules/PID/Src PID_SOURCES)
 aux_source_directory(User/Modules/SVPWM/Src SVPWM_SOURCES)
-aux_source_directory(User/Modules/THREE_PHASE_INVERTER/Src THREE_PHASE_INVERTER_SOURCES)
+aux_source_directory(User/Modules/SINGLE_PHASE_RECTIFIER/Src SINGLE_PHASE_RECTIFIER_SOURCES)
 aux_source_directory(User/Modules/THREE_PHASE_RECTIFIER/Src THREE_PHASE_RECTIFIER_SOURCES)
 aux_source_directory(User/Modules/ARM_MATH/Src ARM_MATH_SOURCES)
 
@@ -68,7 +68,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     ${AD7606_SOURCES}
     ${PID_SOURCES}
     ${SVPWM_SOURCES}
-    ${THREE_PHASE_INVERTER_SOURCES}
+    ${SINGLE_PHASE_RECTIFIER_SOURCES}
     ${THREE_PHASE_RECTIFIER_SOURCES}
     ${ARM_MATH_SOURCES}
 )
@@ -83,7 +83,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     User/Modules/AD7606/Inc
     User/Modules/PID/Inc
     User/Modules/SVPWM/Inc
-    User/Modules/THREE_PHASE_INVERTER/Inc
+    User/Modules/SINGLE_PHASE_RECTIFIER/Inc
     User/Modules/THREE_PHASE_RECTIFIER/Inc
     User/Modules/ARM_MATH/Inc
 )
