@@ -30,7 +30,7 @@ static void getVoltageCurrent(void)
 {
     // 读取AD7606数据
     float adcValue[8] = {0};
-    ad7606_GetValue(&hspi2, 7, adcValue);
+    ad7606_GetValue(&hspi2, 8, adcValue);
 
     // 处理电压数据，将线电压转为相电压
     float Uab = adcValue[2];
@@ -42,9 +42,9 @@ static void getVoltageCurrent(void)
     signal_V->basic->input_c = (Uca - Ubc) / 3.f;
 
     // 处理电流数据
-    signal_I->basic->input_a = adcValue[1] * 2.178571f;
-    signal_I->basic->input_b = adcValue[3] * 2.250774f;
-    signal_I->basic->input_c = adcValue[5] * 2.172956f;
+    signal_I->basic->input_a = adcValue[3] * 2.178571f;
+    signal_I->basic->input_b = adcValue[5] * 2.250774f;
+    signal_I->basic->input_c = adcValue[7] * 2.172956f;
 }
 
 /**

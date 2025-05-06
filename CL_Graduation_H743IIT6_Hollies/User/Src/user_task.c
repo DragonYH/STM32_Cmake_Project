@@ -12,6 +12,8 @@
 #include "oled.h"
 #include "user_global.h"
 #include "tim.h"
+#include "i2c.h"
+#include "ina228.h"
 
 #define isKEY0 (HAL_GPIO_ReadPin(KEY0_GPIO_Port, KEY0_Pin) == GPIO_PIN_RESET) // 按键0
 #define isKEY1 (HAL_GPIO_ReadPin(KEY1_GPIO_Port, KEY1_Pin) == GPIO_PIN_RESET) // 按键1
@@ -21,6 +23,8 @@
 
 char chipTemp[8] = {0};
 float mcuTemperature = 0.0f;
+float dcMedVolt = 0.0f; // 中间直流电压
+float dcMedCurr = 0.0f; // 中间直流电流
 
 void StartDefaultTask(void *argument)
 {
@@ -181,7 +185,7 @@ void StartOledDisplayTask(void *argument)
         // 显示设置
         memset(temp, 0, sizeof(temp));
         OLED_ShowString(0, 96, (uint8_t *)"Set V(V)  C(A) PF", 12);
-        snprintf(temp, sizeof(temp), "%s  %-5.2f %-4.2f %-4.2f", setMode_s, setVolt, setCurr, setPF);
+        snprintf(temp, sizeof(temp), "%s  %-5.2f %-4.2f %5.2f", setMode_s, setVolt, setCurr, setPF);
         OLED_ShowString(0, 108, (uint8_t *)temp, 12);
         // 显示温度
         memset(temp, 0, sizeof(temp));
@@ -198,77 +202,116 @@ void StartKeyTask(void *argument)
 {
     /* USER CODE BEGIN StartKeyTask */
     UNUSED(argument);
+    float maxVolt = 32.f; // 最大电压
+    float maxCurr = 2.f;  // 最大电流
+    float minVolt = 12.f; // 最小电压
+    float minCurr = 0.1f; // 最小电流
     /* Infinite loop */
     for (;;)
     {
         /* 按键按下 */
         if (isKEY0 || isKEY2 || isKEY3 || isKEY4)
         {
-            osDelay(100); /* 消抖 */
-            if (isKEY0)
+            osDelay(50); /* 消抖 */
+            if (isKEY0)  // 切换运行状态
             {
                 while (isKEY0)
                     ;
-                if (runState == RUN)
-                {
-                    runState = STOP;
-                }
-                else if (runState == STOP)
-                {
-                    runState = RUN;
-                }
+                runState = (runState == RUN) ? STOP : RUN;
             }
-            else if (isKEY2)
+            else if (isKEY2) // 切换设置模式
             {
                 while (isKEY2)
                     ;
-                if (setMode == VOLT_SET)
+                switch (setMode)
                 {
+                case VOLT_SET:
                     setMode = CURR_SET;
-                }
-                else if (setMode == CURR_SET)
-                {
+                    break;
+                case CURR_SET:
                     setMode = PF_SET;
-                }
-                else if (setMode == PF_SET)
-                {
+                    break;
+                case PF_SET:
                     setMode = VOLT_SET;
+                    break;
                 }
             }
-            else if (isKEY3)
+            else if (isKEY3) // 增加数值
             {
-                if (setMode == VOLT_SET)
+                float tmp;
+                switch (setMode)
                 {
-                    setVolt += 0.1;
-                }
-                else if (setMode == CURR_SET)
-                {
-                    setCurr += 0.1;
-                }
-                else if (setMode == PF_SET)
-                {
-                    setPF += 0.01;
+                case VOLT_SET:
+                    if (setVolt < maxVolt)
+                        setVolt += 0.1f;
+                    break;
+                case CURR_SET:
+                    if (setCurr < maxCurr)
+                        setCurr += 0.1f;
+                    break;
+                case PF_SET:
+                    tmp = setPF;
+                    if (tmp < 1.0f)
+                        tmp += 0.01f;
+                    else
+                    {
+                        tmp = -tmp;
+                    }
+                    if (tmp < 0 && tmp > -0.7f) // 限值
+                        tmp = -0.7f;
+                    setPF = tmp;
+                    break;
                 }
             }
-            else if (isKEY4)
+            else if (isKEY4) // 减小数值
             {
-                if (setMode == VOLT_SET)
+                float tmp;
+                switch (setMode)
                 {
-                    setVolt -= 0.1;
-                }
-                else if (setMode == CURR_SET)
-                {
-                    setCurr -= 0.1;
-                }
-                else if (setMode == PF_SET)
-                {
-                    setPF -= 0.01;
+                case VOLT_SET:
+                    if (setVolt > minVolt)
+                        setVolt -= 0.1f;
+                    break;
+                case CURR_SET:
+                    if (setCurr > minCurr)
+                        setCurr -= 0.1f;
+                    break;
+                case PF_SET:
+                    tmp = setPF;
+                    if (tmp > -1.0f)
+                        tmp -= 0.01f;
+                    else
+                    {
+                        tmp = -tmp;
+                    }
+                    if (tmp > 0 && tmp < 0.7f) // 限值
+                        tmp = 0.7f;
+                    setPF = tmp;
+                    break;
                 }
             }
         }
-        osDelay(1);
+        osDelay(10);
     }
     /* USER CODE END StartKeyTask */
+}
+
+void StartDCSampingTask(void *argument)
+{
+    /* USER CODE BEGIN StartDCSampingTask */
+    UNUSED(argument);
+    INA228_config(INA228_0); /* 配置INA228_0传感器 */
+    INA228_config(INA228_1); /* 配置INA228_1传感器 */
+    /* Infinite loop */
+    for (;;)
+    {
+        dcVolt = INA228_getVBUS_V(INA228_0);       /* 获取直流电压 */
+        dcCurr = INA228_getCURRENT_A(INA228_0);    /* 获取直流电流 */
+        dcMedVolt = INA228_getVBUS_V(INA228_1);    /* 获取中间直流电压 */
+        dcMedCurr = INA228_getCURRENT_A(INA228_1); /* 获取中间直流电流 */
+        osDelay(5);
+    }
+    /* USER CODE END StartDCSampingTask */
 }
 
 static void userFuncGetChipTemperature(void)

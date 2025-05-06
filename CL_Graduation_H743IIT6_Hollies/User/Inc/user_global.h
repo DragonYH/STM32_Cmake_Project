@@ -16,6 +16,7 @@
 
 // 全局变量声明
 extern const INA228_Handle INA228_0;
+extern const INA228_Handle INA228_1;
 extern float dcVolt;                   // 直流电压
 extern float dcCurr;                   // 直流电流
 extern float setVolt;                  // 输出电压设定值
