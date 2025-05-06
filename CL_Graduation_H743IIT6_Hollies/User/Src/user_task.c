@@ -116,7 +116,7 @@ void StartOledDisplayTask(void *argument)
         case DC:
             snprintf(inputMode_s, sizeof(inputMode_s), "DC ");
             break;
-        case AC_SINGAL:
+        case AC_SINGLE:
             snprintf(inputMode_s, sizeof(inputMode_s), "AC1");
             break;
         case AC_THREE:
@@ -132,7 +132,7 @@ void StartOledDisplayTask(void *argument)
         case DC:
             snprintf(outputMode_s, sizeof(outputMode_s), "DC ");
             break;
-        case AC_SINGAL:
+        case AC_SINGLE:
             snprintf(outputMode_s, sizeof(outputMode_s), "AC1");
             break;
         case AC_THREE:

@@ -39,7 +39,7 @@ extern volatile enum run_state runState;
 enum input_output_mode
 {
     DC = 0,        // 直流
-    AC_SINGAL = 1, // 单相交流
+    AC_SINGLE = 1, // 单相交流
     AC_THREE = 2   // 三相交流
 };
 extern volatile enum input_output_mode inputMode;  // 输入模式
