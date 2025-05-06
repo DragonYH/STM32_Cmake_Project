@@ -9,24 +9,12 @@ static void Duty_Calculation(float Ta, float Tb, float Tc, float Ts);
 
 /**
  * @brief  SVPWM控制
- * @param  signal PLL信号输入结构体指针
+ * @param  Ualpha 整流时输入signal->park_inv_alpha 逆变时输入signal->basic->clarke_alpha
+ * @param  Ubeta 整流时输入signal->park_inv_beta 逆变时输入signal->basic->clarke_beta
  */
-#if Rectifier_Or_Inverter
-void svpwm_Control(three_Phase_Signal_I *signal)
-#else
-void svpwm_Control(three_Phase_Signal_V *signal)
-#endif
+void svpwm_Control(float Ualpha, float Ubeta, float Ts)
 {
     // 计算中间变量
-    float Ts = signal->basic->Ts;
-#if Rectifier_Or_Inverter
-    float Ualpha = signal->park_inv_alpha;
-    float Ubeta = signal->park_inv_beta;
-#else
-    float Ualpha = M * signal->basic->clarke_alpha;
-    float Ubeta = M * signal->basic->clarke_beta;
-#endif
-
     float Ualpha_ = 1.7320508f * Ualpha * Ts;
     float Ubeta_ = Ubeta * Ts;
 
