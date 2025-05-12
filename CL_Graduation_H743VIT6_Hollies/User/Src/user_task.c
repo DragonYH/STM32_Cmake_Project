@@ -65,9 +65,8 @@ void StartChipTemperatureTask(void *argument)
         HAL_ADC_Start(&hadc3);
         if (HAL_ADC_PollForConversion(&hadc3, 1000) == HAL_OK) /* 判断是否转换完成 */
         {
-            uint16_t temperature = HAL_ADC_GetValue(&hadc3); /* 读出转换结果 */
-            mcuTemperature = ((110.0f - 30.0f) / (*(unsigned short *)(0x1FF1E840) - *(unsigned short *)(0x1FF1E820))) * (temperature - *(unsigned short *)(0x1FF1E820)) + 30.f;
-
+            double temperature = (double)HAL_ADC_GetValue(&hadc3) / 3.3 * 2.5; /* 读出转换结果 */
+            mcuTemperature = ((110.0 - 30.0) / (*(unsigned short *)(0x1FF1E840) - *(unsigned short *)(0x1FF1E820))) * (temperature - *(unsigned short *)(0x1FF1E820)) + 30;
             snprintf(chipTemp, sizeof(chipTemp), "%4.1f", mcuTemperature); /* 将温度值转换为字符串 */
         }
         else
