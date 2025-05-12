@@ -16,6 +16,7 @@
 
 // 全局变量声明
 extern const INA228_Handle INA228_0;
+extern const INA228_Handle INA228_1;
 extern float dcVolt;                   // 直流电压
 extern float dcCurr;                   // 直流电流
 extern float setVolt;                  // 输出电压设定值
@@ -38,7 +39,7 @@ extern volatile enum run_state runState;
 enum input_output_mode
 {
     DC = 0,        // 直流
-    AC_SINGAL = 1, // 单相交流
+    AC_SINGLE = 1, // 单相交流
     AC_THREE = 2   // 三相交流
 };
 extern volatile enum input_output_mode inputMode;  // 输入模式

@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "*.nsp": "json",
+        "*.yml": "yaml",
+        "*.toml": "yaml",
+        "compare": "c",
+        "ina228.h": "c"
+    }
+}

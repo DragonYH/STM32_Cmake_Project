@@ -18,8 +18,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
     if (GPIO_Pin == AD7606_BUSY_Pin)
     {
-        getVoltageCurrent();  // 获取电压电流
-        calcEffectiveValue(); // 计算有效值
+        // getVoltageCurrent();  // 获取电压电流
+        // calcEffectiveValue(); // 计算有效值
     }
 }
 
