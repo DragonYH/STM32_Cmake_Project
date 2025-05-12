@@ -126,7 +126,9 @@ void three_Phase_Loop_I(three_Phase_Signal_I *signal_I, three_Phase_Signal_V *si
 
     arm_park_f32(signal_I->basic->clarke_alpha, signal_I->basic->clarke_beta, &signal_I->basic->park_d, &signal_I->basic->park_q, sinTheta, cosTheta);
 
-    // PI控制
+    // PI控制 功率因数控制
+    signal_I->CorL = (PF > 0) ? 0 : 1; // 0:感性 1:容性
+    PF = fabsf(PF);                    // 取绝对值
     float PFTheta = asinf(PF);
 
     float Ivalue = Iset * 1.414f / Ibase;
