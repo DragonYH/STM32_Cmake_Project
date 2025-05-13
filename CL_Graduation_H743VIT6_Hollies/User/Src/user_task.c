@@ -179,7 +179,7 @@ void StartOledDisplayTask(void *argument)
         // 显示输出电压和电流
         memset(temp, 0, sizeof(temp));
         OLED_ShowString(0, 72, (uint8_t *)"Out V(V)  C(A)", 12);
-        snprintf(temp, sizeof(temp), "DC  %-5.2f %-4.2f", 0.f, 0.f);
+        snprintf(temp, sizeof(temp), "DC  %-5.2f %-4.2f", dcVolt, dcCurr);
         OLED_ShowString(0, 84, (uint8_t *)temp, 12);
         // 显示设置
         memset(temp, 0, sizeof(temp));

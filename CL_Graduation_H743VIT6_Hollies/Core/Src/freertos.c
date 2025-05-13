@@ -56,37 +56,44 @@
 /* Definitions for defaultTask */
 osThreadId_t defaultTaskHandle;
 const osThreadAttr_t defaultTask_attributes = {
-  .name = "defaultTask",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
+    .name = "defaultTask",
+    .stack_size = 128 * 4,
+    .priority = (osPriority_t)osPriorityNormal,
 };
 /* Definitions for letterShellTask */
 osThreadId_t letterShellTaskHandle;
 const osThreadAttr_t letterShellTask_attributes = {
-  .name = "letterShellTask",
-  .stack_size = 1024 * 4,
-  .priority = (osPriority_t) osPriorityBelowNormal7,
+    .name = "letterShellTask",
+    .stack_size = 1024 * 4,
+    .priority = (osPriority_t)osPriorityBelowNormal7,
 };
 /* Definitions for chipTemperature */
 osThreadId_t chipTemperatureHandle;
 const osThreadAttr_t chipTemperature_attributes = {
-  .name = "chipTemperature",
-  .stack_size = 512 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
+    .name = "chipTemperature",
+    .stack_size = 512 * 4,
+    .priority = (osPriority_t)osPriorityNormal,
 };
 /* Definitions for oledDisplayTask */
 osThreadId_t oledDisplayTaskHandle;
 const osThreadAttr_t oledDisplayTask_attributes = {
-  .name = "oledDisplayTask",
-  .stack_size = 512 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
+    .name = "oledDisplayTask",
+    .stack_size = 512 * 4,
+    .priority = (osPriority_t)osPriorityNormal,
 };
 /* Definitions for keyTask */
 osThreadId_t keyTaskHandle;
 const osThreadAttr_t keyTask_attributes = {
-  .name = "keyTask",
-  .stack_size = 256 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
+    .name = "keyTask",
+    .stack_size = 256 * 4,
+    .priority = (osPriority_t)osPriorityNormal,
+};
+/* Definitions for dcSampingTask */
+osThreadId_t dcSampingTaskHandle;
+const osThreadAttr_t dcSampingTask_attributes = {
+    .name = "dcSampingTask",
+    .stack_size = 256 * 4,
+    .priority = (osPriority_t)osPriorityHigh,
 };
 
 /* Private function prototypes -----------------------------------------------*/
@@ -99,16 +106,18 @@ void shellTask(void *argument);
 void StartChipTemperatureTask(void *argument);
 void StartOledDisplayTask(void *argument);
 void StartKeyTask(void *argument);
+void StartDCSampingTask(void *argument);
 
 extern void MX_USB_DEVICE_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
 /**
-  * @brief  FreeRTOS initialization
-  * @param  None
-  * @retval None
-  */
-void MX_FREERTOS_Init(void) {
+ * @brief  FreeRTOS initialization
+ * @param  None
+ * @retval None
+ */
+void MX_FREERTOS_Init(void)
+{
   /* USER CODE BEGIN Init */
   ad7606_Init();
   MX_USB_DEVICE_Init();
@@ -139,7 +148,7 @@ void MX_FREERTOS_Init(void) {
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
   /* creation of letterShellTask */
-  letterShellTaskHandle = osThreadNew(shellTask, (void*) &shell, &letterShellTask_attributes);
+  letterShellTaskHandle = osThreadNew(shellTask, (void *)&shell, &letterShellTask_attributes);
 
   /* creation of chipTemperature */
   chipTemperatureHandle = osThreadNew(StartChipTemperatureTask, NULL, &chipTemperature_attributes);
@@ -150,6 +159,9 @@ void MX_FREERTOS_Init(void) {
   /* creation of keyTask */
   keyTaskHandle = osThreadNew(StartKeyTask, NULL, &keyTask_attributes);
 
+  /* creation of dcSampingTask */
+  dcSampingTaskHandle = osThreadNew(StartDCSampingTask, NULL, &dcSampingTask_attributes);
+
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
@@ -157,7 +169,6 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN RTOS_EVENTS */
   /* add events, ... */
   /* USER CODE END RTOS_EVENTS */
-
 }
 
 /* USER CODE BEGIN Header_StartDefaultTask */
@@ -257,8 +268,26 @@ __weak void StartKeyTask(void *argument)
   /* USER CODE END StartKeyTask */
 }
 
+/* USER CODE BEGIN Header_StartDCSampingTask */
+/**
+ * @brief Function implementing the dcSampingTask thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_StartDCSampingTask */
+__weak void StartDCSampingTask(void *argument)
+{
+  /* USER CODE BEGIN StartDCSampingTask */
+  UNUSED(argument);
+  /* Infinite loop */
+  for (;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END StartDCSampingTask */
+}
+
 /* Private application code --------------------------------------------------*/
 /* USER CODE BEGIN Application */
 
 /* USER CODE END Application */
-
