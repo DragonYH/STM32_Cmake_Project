@@ -4,6 +4,7 @@
         "*.yml": "yaml",
         "*.toml": "yaml",
         "compare": "c",
-        "ina228.h": "c"
+        "ina228.h": "c",
+        "shell.h": "c"
     }
 }
