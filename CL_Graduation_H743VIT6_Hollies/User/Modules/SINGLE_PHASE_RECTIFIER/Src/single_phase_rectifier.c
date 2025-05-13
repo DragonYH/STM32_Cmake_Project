@@ -78,7 +78,7 @@ void single_Phase_Init_V(single_Phase_Signal_V **signal, float f, uint16_t F)
  * @param f 信号频率(典型值:50)
  * @param F 采样频率(典型值:20000)
  */
-void pll_Init_I(single_Phase_Signal_I **signal, float f, uint16_t F)
+void single_Phase_Init_I(single_Phase_Signal_I **signal, float f, uint16_t F)
 {
     /* 分配内存空间 */
     (*signal) = (single_Phase_Signal_I *)malloc(sizeof(single_Phase_Signal_I));
@@ -135,7 +135,7 @@ void pll_Init_I(single_Phase_Signal_I **signal, float f, uint16_t F)
  * @brief 电压锁相控制
  * @param signal_V 电压信号指针
  */
-void pll_Control_V(single_Phase_Signal_V *signal_V)
+void single_Phase_Control_V(single_Phase_Signal_V *signal_V)
 {
     /* 对信号先进行sogi变换，得到两个相位相差90度的信号 */
     pll_Sogi(signal_V->basic->sogi, signal_V->basic->input);
@@ -160,7 +160,7 @@ void pll_Control_V(single_Phase_Signal_V *signal_V)
  * @param Iset 电流设定值(有效值)
  * @param PF 功率因数
  */
-void pll_Control_I(single_Phase_Signal_I *signal_I, single_Phase_Signal_V *signal_V, float Iset, float PF)
+void single_Phase_Control_I(single_Phase_Signal_I *signal_I, single_Phase_Signal_V *signal_V, float Iset, float PF)
 {
     /* 对信号先进行sogi变换，得到两个相位相差90度的信号 */
     pll_Sogi(signal_I->basic->sogi, signal_I->basic->input);
@@ -216,7 +216,7 @@ static void pll_Sogi(Sogi *sogi, float *input)
  * @brief 释放内存
  * @param signal 信号指针
  */
-void pll_Free_V(single_Phase_Signal_V *signal)
+void single_Phase_Free_V(single_Phase_Signal_V *signal)
 {
     free(signal->basic->sogi);
     free(signal->basic);
@@ -228,7 +228,7 @@ void pll_Free_V(single_Phase_Signal_V *signal)
  * @brief 释放内存
  * @param signal 信号指针
  */
-void pll_Free_I(single_Phase_Signal_I *signal)
+void single_Phase_Free_I(single_Phase_Signal_I *signal)
 {
     free(signal->basic->sogi);
     free(signal->basic);

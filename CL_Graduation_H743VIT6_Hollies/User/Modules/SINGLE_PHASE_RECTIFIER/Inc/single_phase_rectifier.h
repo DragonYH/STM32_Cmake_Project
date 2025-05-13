@@ -72,11 +72,11 @@ typedef struct single_Phase_Signal_I
     PID *pid_q;   /* 控制相位pi指针 */
 } single_Phase_Signal_I;
 
-void pll_Init_V(single_Phase_Signal_V **signal, float f, uint16_t F);
-void pll_Control_V(single_Phase_Signal_V *signal_V);
-void pll_Init_I(single_Phase_Signal_I **signal, float f, uint16_t F);
-void pll_Control_I(single_Phase_Signal_I *signal_I, single_Phase_Signal_V *signal_V, float Iset, float PF);
-void pll_Free_V(single_Phase_Signal_V *signal);
-void pll_Free_I(single_Phase_Signal_I *signal);
+void single_Phase_Init_V(single_Phase_Signal_V **signal, float f, uint16_t F);
+void single_Phase_Control_V(single_Phase_Signal_V *signal_V);
+void single_Phase_Init_I(single_Phase_Signal_I **signal, float f, uint16_t F);
+void single_Phase_Control_I(single_Phase_Signal_I *signal_I, single_Phase_Signal_V *signal_V, float Iset, float PF);
+void single_Phase_Free_V(single_Phase_Signal_V *signal);
+void single_Phase_Free_I(single_Phase_Signal_I *signal);
 
 #endif
