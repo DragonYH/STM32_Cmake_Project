@@ -55,18 +55,24 @@ static void getVoltageCurrent(void)
     ad7606_GetValue(&hspi2, 8, adcValue);
 
     // 处理电压数据，将线电压转为相电压
-    float Uab = adcValue[2];
-    float Ubc = adcValue[4];
-    float Uca = adcValue[6];
+    // float Uab = adcValue[1];
+    // float Ubc = adcValue[3];
+    // float Uca = adcValue[5];
 
-    signal_V->basic->input_a = (Uab - Uca) / 3.f;
-    signal_V->basic->input_b = (Ubc - Uab) / 3.f;
-    signal_V->basic->input_c = (Uca - Ubc) / 3.f;
+    // signal_V->basic->input_a = (Uab - Uca) / 3.f;
+    // signal_V->basic->input_b = (Ubc - Uab) / 3.f;
+    // signal_V->basic->input_c = (Uca - Ubc) / 3.f;
 
-    // 处理电流数据
-    signal_I->basic->input_a = adcValue[3] * 2.178571f;
-    signal_I->basic->input_b = adcValue[5] * 2.250774f;
-    signal_I->basic->input_c = adcValue[7] * 2.172956f;
+    // // 处理电流数据
+    // signal_I->basic->input_a = adcValue[0] * 2.178571f;
+    // signal_I->basic->input_b = adcValue[2] * 2.250774f;
+    // signal_I->basic->input_c = adcValue[4] * 2.172956f;
+    signal_V->basic->input_a = adcValue[0];
+    signal_V->basic->input_b = adcValue[1];
+    signal_V->basic->input_c = adcValue[2];
+    signal_I->basic->input_a = adcValue[3];
+    signal_I->basic->input_b = adcValue[4];
+    signal_I->basic->input_c = adcValue[5];
 }
 
 /**

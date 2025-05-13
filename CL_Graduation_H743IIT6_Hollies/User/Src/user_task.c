@@ -167,15 +167,15 @@ void StartOledDisplayTask(void *argument)
         OLED_ShowString(0, 24, (uint8_t *)"In  V(V)  C(A)", 12);
 
         memset(temp, 0, sizeof(temp));
-        snprintf(temp, sizeof(temp), "A   %-5.2f %-4.2f", signal_V->basic->rms_a, signal_I->basic->rms_a);
+        snprintf(temp, sizeof(temp), "A   %-5.2f %-4.2f", signal_V->basic->input_a, signal_I->basic->input_a);
         OLED_ShowString(0, 36, (uint8_t *)temp, 12);
 
         memset(temp, 0, sizeof(temp));
-        snprintf(temp, sizeof(temp), "B   %-5.2f %-4.2f", signal_V->basic->rms_b, signal_I->basic->rms_b);
+        snprintf(temp, sizeof(temp), "B   %-5.2f %-4.2f", signal_V->basic->input_b, signal_I->basic->input_b);
         OLED_ShowString(0, 48, (uint8_t *)temp, 12);
 
         memset(temp, 0, sizeof(temp));
-        snprintf(temp, sizeof(temp), "C   %-5.2f %-4.2f", signal_V->basic->rms_c, signal_I->basic->rms_c);
+        snprintf(temp, sizeof(temp), "C   %-5.2f %-4.2f", signal_V->basic->input_c, signal_I->basic->input_c);
         OLED_ShowString(0, 60, (uint8_t *)temp, 12);
         // 显示输出电压和电流
         memset(temp, 0, sizeof(temp));
