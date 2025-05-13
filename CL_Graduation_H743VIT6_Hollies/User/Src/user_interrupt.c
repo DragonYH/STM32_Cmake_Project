@@ -1,10 +1,13 @@
+#include "user_global.h"
 #include "user_interrupt.h"
 #include "main.h"
 #include "ad7606.h"
 #include "tim.h"
 #include "spi.h"
-#include "user_global.h"
 #include "arm_math.h"
+#include "svpwm.h"
+#include "three_phase_rectifier.h"
+#include "user_task.h"
 
 static void getVoltageCurrent(void);
 static void calcEffectiveValue(void);
@@ -18,8 +21,29 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
     if (GPIO_Pin == AD7606_BUSY_Pin)
     {
-        // getVoltageCurrent();  // 获取电压电流
-        // calcEffectiveValue(); // 计算有效值
+        getVoltageCurrent();  // 获取电压电流
+        calcEffectiveValue(); // 计算有效值
+
+        if (runState == RUN)
+        {
+            switch (inputMode)
+            {
+            case DC:
+                if (outputMode == AC_SINGLE)
+                {
+                }
+                else if (outputMode == AC_THREE)
+                {
+                    three_Phase_PLL_V(signal_V);                                                                     // 电压锁相
+                    svpwm_Control(signal_V->basic->clarke_alpha, signal_V->basic->clarke_beta, signal_V->basic->Ts); // SVPWM控制
+                }
+                break;
+            case AC_SINGLE:
+                break;
+            case AC_THREE:
+                break;
+            }
+        }
     }
 }
 
@@ -30,21 +54,21 @@ static void getVoltageCurrent(void)
 {
     // 读取AD7606数据
     float adcValue[8] = {0};
-    ad7606_GetValue(&hspi2, 7, adcValue);
+    ad7606_GetValue(&hspi2, 8, adcValue);
 
     // 处理电压数据，将线电压转为相电压
-    float Uab = adcValue[2];
-    float Ubc = adcValue[4];
-    float Uca = adcValue[6];
+    float Uab = adcValue[1];
+    float Ubc = adcValue[3];
+    float Uca = adcValue[5];
 
     signal_V->basic->input_a = (Uab - Uca) / 3.f;
     signal_V->basic->input_b = (Ubc - Uab) / 3.f;
     signal_V->basic->input_c = (Uca - Ubc) / 3.f;
 
     // 处理电流数据
-    signal_I->basic->input_a = adcValue[1] * 2.178571f;
-    signal_I->basic->input_b = adcValue[3] * 2.250774f;
-    signal_I->basic->input_c = adcValue[5] * 2.172956f;
+    signal_I->basic->input_a = adcValue[0] * 2.178571f;
+    signal_I->basic->input_b = adcValue[2] * 2.250774f;
+    signal_I->basic->input_c = adcValue[4] * 2.172956f;
 }
 
 /**
