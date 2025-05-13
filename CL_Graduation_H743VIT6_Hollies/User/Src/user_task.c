@@ -34,23 +34,23 @@ void StartDefaultTask(void *argument)
     {
         if (runState == RUN)
         {
-            // HAL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin);
-            // osDelay(100);
-            // HAL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin);
-            // osDelay(200);
-            // HAL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin);
-            // osDelay(100);
-            // HAL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin);
-            // osDelay(200);
-            // HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin, GPIO_PIN_SET);
+            HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+            osDelay(100);
+            HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+            osDelay(200);
+            HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+            osDelay(100);
+            HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+            osDelay(200);
+            HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
         }
         else if (runState == STOP)
         {
-            // HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin, GPIO_PIN_SET);
+            HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
         }
         else
         {
-            // HAL_GPIO_WritePin(LED0_GPIO_Port, LED0_Pin, GPIO_PIN_RESET);
+            HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
         }
         osDelay(1000);
     }
