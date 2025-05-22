@@ -59,6 +59,8 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define OLED_CS_Pin GPIO_PIN_6
 #define OLED_CS_GPIO_Port GPIOA
+#define DIS_Pin GPIO_PIN_7
+#define DIS_GPIO_Port GPIOE
 #define AD7606_RST_Pin GPIO_PIN_14
 #define AD7606_RST_GPIO_Port GPIOD
 #define AD7606_CS_Pin GPIO_PIN_15

@@ -56,44 +56,58 @@
 /* Definitions for defaultTask */
 osThreadId_t defaultTaskHandle;
 const osThreadAttr_t defaultTask_attributes = {
-    .name = "defaultTask",
-    .stack_size = 128 * 4,
-    .priority = (osPriority_t)osPriorityNormal,
+  .name = "defaultTask",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityNormal,
 };
 /* Definitions for letterShellTask */
 osThreadId_t letterShellTaskHandle;
 const osThreadAttr_t letterShellTask_attributes = {
-    .name = "letterShellTask",
-    .stack_size = 1024 * 4,
-    .priority = (osPriority_t)osPriorityBelowNormal7,
+  .name = "letterShellTask",
+  .stack_size = 1024 * 4,
+  .priority = (osPriority_t) osPriorityBelowNormal7,
 };
 /* Definitions for chipTemperature */
 osThreadId_t chipTemperatureHandle;
 const osThreadAttr_t chipTemperature_attributes = {
-    .name = "chipTemperature",
-    .stack_size = 512 * 4,
-    .priority = (osPriority_t)osPriorityNormal,
+  .name = "chipTemperature",
+  .stack_size = 512 * 4,
+  .priority = (osPriority_t) osPriorityNormal,
 };
 /* Definitions for oledDisplayTask */
 osThreadId_t oledDisplayTaskHandle;
 const osThreadAttr_t oledDisplayTask_attributes = {
-    .name = "oledDisplayTask",
-    .stack_size = 512 * 4,
-    .priority = (osPriority_t)osPriorityNormal,
+  .name = "oledDisplayTask",
+  .stack_size = 512 * 4,
+  .priority = (osPriority_t) osPriorityNormal,
 };
 /* Definitions for keyTask */
 osThreadId_t keyTaskHandle;
 const osThreadAttr_t keyTask_attributes = {
-    .name = "keyTask",
-    .stack_size = 256 * 4,
-    .priority = (osPriority_t)osPriorityNormal,
+  .name = "keyTask",
+  .stack_size = 256 * 4,
+  .priority = (osPriority_t) osPriorityNormal,
 };
 /* Definitions for dcSampingTask */
 osThreadId_t dcSampingTaskHandle;
 const osThreadAttr_t dcSampingTask_attributes = {
-    .name = "dcSampingTask",
-    .stack_size = 256 * 4,
-    .priority = (osPriority_t)osPriorityHigh,
+  .name = "dcSampingTask",
+  .stack_size = 256 * 4,
+  .priority = (osPriority_t) osPriorityHigh,
+};
+/* Definitions for medDCControl */
+osThreadId_t medDCControlHandle;
+const osThreadAttr_t medDCControl_attributes = {
+  .name = "medDCControl",
+  .stack_size = 256 * 4,
+  .priority = (osPriority_t) osPriorityHigh,
+};
+/* Definitions for dcControlTask */
+osThreadId_t dcControlTaskHandle;
+const osThreadAttr_t dcControlTask_attributes = {
+  .name = "dcControlTask",
+  .stack_size = 256 * 4,
+  .priority = (osPriority_t) osPriorityHigh,
 };
 
 /* Private function prototypes -----------------------------------------------*/
@@ -107,23 +121,26 @@ void StartChipTemperatureTask(void *argument);
 void StartOledDisplayTask(void *argument);
 void StartKeyTask(void *argument);
 void StartDCSampingTask(void *argument);
+void StartMedDCControl(void *argument);
+void StartDCControlTask(void *argument);
 
 extern void MX_USB_DEVICE_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
 /**
- * @brief  FreeRTOS initialization
- * @param  None
- * @retval None
- */
-void MX_FREERTOS_Init(void)
-{
+  * @brief  FreeRTOS initialization
+  * @param  None
+  * @retval None
+  */
+void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
   ad7606_Init();
   MX_USB_DEVICE_Init();
   userShellInit();
   three_Phase_Init_V(&signal_V, 50, 20000);
   three_Phase_Init_I(&signal_I, 50, 20000);
+  single_Phase_Init_V(&signal_V_single, 50, 20000);
+  single_Phase_Init_I(&signal_I_single, 50, 20000);
   ad7606_Start(&htim3, TIM_CHANNEL_2);
   /* USER CODE END Init */
 
@@ -148,7 +165,7 @@ void MX_FREERTOS_Init(void)
   defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
   /* creation of letterShellTask */
-  letterShellTaskHandle = osThreadNew(shellTask, (void *)&shell, &letterShellTask_attributes);
+  letterShellTaskHandle = osThreadNew(shellTask, (void*) &shell, &letterShellTask_attributes);
 
   /* creation of chipTemperature */
   chipTemperatureHandle = osThreadNew(StartChipTemperatureTask, NULL, &chipTemperature_attributes);
@@ -162,6 +179,12 @@ void MX_FREERTOS_Init(void)
   /* creation of dcSampingTask */
   dcSampingTaskHandle = osThreadNew(StartDCSampingTask, NULL, &dcSampingTask_attributes);
 
+  /* creation of medDCControl */
+  medDCControlHandle = osThreadNew(StartMedDCControl, NULL, &medDCControl_attributes);
+
+  /* creation of dcControlTask */
+  dcControlTaskHandle = osThreadNew(StartDCControlTask, NULL, &dcControlTask_attributes);
+
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
@@ -169,6 +192,7 @@ void MX_FREERTOS_Init(void)
   /* USER CODE BEGIN RTOS_EVENTS */
   /* add events, ... */
   /* USER CODE END RTOS_EVENTS */
+
 }
 
 /* USER CODE BEGIN Header_StartDefaultTask */
@@ -287,7 +311,46 @@ __weak void StartDCSampingTask(void *argument)
   /* USER CODE END StartDCSampingTask */
 }
 
+/* USER CODE BEGIN Header_StartMedDCControl */
+/**
+ * @brief Function implementing the medDCControl thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_StartMedDCControl */
+__weak void StartMedDCControl(void *argument)
+{
+  /* USER CODE BEGIN StartMedDCControl */
+  UNUSED(argument);
+  /* Infinite loop */
+  for (;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END StartMedDCControl */
+}
+
+/* USER CODE BEGIN Header_StartDCControlTask */
+/**
+ * @brief Function implementing the dcControlTask thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_StartDCControlTask */
+__weak void StartDCControlTask(void *argument)
+{
+  /* USER CODE BEGIN StartDCControlTask */
+  UNUSED(argument);
+  /* Infinite loop */
+  for (;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END StartDCControlTask */
+}
+
 /* Private application code --------------------------------------------------*/
 /* USER CODE BEGIN Application */
 
 /* USER CODE END Application */
+

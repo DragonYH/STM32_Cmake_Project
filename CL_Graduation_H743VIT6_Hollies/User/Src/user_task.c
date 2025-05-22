@@ -20,10 +20,11 @@
 #define isKEY2 (HAL_GPIO_ReadPin(KEY2_GPIO_Port, KEY2_Pin) == GPIO_PIN_RESET) // 按键2
 #define isKEY3 (HAL_GPIO_ReadPin(KEY3_GPIO_Port, KEY3_Pin) == GPIO_PIN_RESET) // 按键3
 
+#define enableDrive() HAL_GPIO_WritePin(DIS_GPIO_Port, DIS_Pin, GPIO_PIN_RESET) // 使能驱动
+#define disableDrive() HAL_GPIO_WritePin(DIS_GPIO_Port, DIS_Pin, GPIO_PIN_SET)  // 禁用驱动
+
 char chipTemp[8] = {0};
 float mcuTemperature = 0.0f;
-float dcMedVolt = 0.0f; // 中间直流电压
-float dcMedCurr = 0.0f; // 中间直流电流
 
 void StartDefaultTask(void *argument)
 {
@@ -32,27 +33,45 @@ void StartDefaultTask(void *argument)
     /* Infinite loop */
     for (;;)
     {
-        if (runState == RUN)
-        {
-            HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
-            osDelay(100);
-            HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
-            osDelay(200);
-            HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
-            osDelay(100);
-            HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
-            osDelay(200);
-            HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
-        }
-        else if (runState == STOP)
-        {
-            HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
-        }
-        else
-        {
-            HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
-        }
+        // if (runState == RUN)
+        // {
+        //     HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+        //     osDelay(100);
+        //     HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+        //     osDelay(200);
+        //     HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+        //     osDelay(100);
+        //     HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+        //     osDelay(200);
+        //     HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
+        // }
+        // else if (runState == STOP)
+        // {
+        //     HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
+        // }
+        // else
+        // {
+        //     HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
+        // }
+
+        // 判断输入模式
         osDelay(1000);
+        if (signal_V->basic->rms_a > 10.f && signal_V->basic->rms_b > 10.f && signal_V->basic->rms_c > 10.f && dcVolt < 4.f)
+        {
+            inputMode = AC_THREE;
+            outputMode = DC;
+        }
+        else if (signal_V->basic->rms_a > 10.f && dcVolt < 4.f)
+        {
+            inputMode = AC_SINGLE;
+            outputMode = DC;
+        }
+        else if (signal_V->basic->rms_a < 4.f && dcVolt > 10.f)
+        {
+            inputMode = DC;
+            outputMode = AC_THREE;
+        }
+        vTaskDelete(NULL); // 删除当前任务
     }
     /* USER CODE END StartDefaultTask */
 }
@@ -163,7 +182,7 @@ void StartOledDisplayTask(void *argument)
         OLED_ShowString(0, 12, (uint8_t *)temp, 12);
         // 显示输入电压和电流
         memset(temp, 0, sizeof(temp));
-        OLED_ShowString(0, 24, (uint8_t *)"In  V(V)  C(A)", 12);
+        OLED_ShowString(0, 24, (uint8_t *)"AC  V(V)  C(A)", 12);
 
         memset(temp, 0, sizeof(temp));
         snprintf(temp, sizeof(temp), "A   %-5.2f %-4.2f", signal_V->basic->rms_a, signal_I->basic->rms_a);
@@ -178,9 +197,26 @@ void StartOledDisplayTask(void *argument)
         OLED_ShowString(0, 60, (uint8_t *)temp, 12);
         // 显示输出电压和电流
         memset(temp, 0, sizeof(temp));
-        OLED_ShowString(0, 72, (uint8_t *)"Out V(V)  C(A)", 12);
-        snprintf(temp, sizeof(temp), "DC  %-5.2f %-4.2f", dcVolt, dcCurr);
+        OLED_ShowString(0, 72, (uint8_t *)"DC  V(V)  C(A)", 12);
+        snprintf(temp, sizeof(temp), "    %-5.2f %-4.2f", dcVolt, dcCurr);
         OLED_ShowString(0, 84, (uint8_t *)temp, 12);
+
+        // 调试
+        memset(temp, 0, sizeof(temp));
+        snprintf(temp, sizeof(temp), "%6.2f", dcMedVolt);
+        OLED_ShowString(86, 72, (uint8_t *)temp, 12);
+        memset(temp, 0, sizeof(temp));
+        snprintf(temp, sizeof(temp), "%6.2f", dcMedCurr);
+        OLED_ShowString(86, 84, (uint8_t *)temp, 12);
+
+        memset(temp, 0, sizeof(temp));
+        snprintf(temp, sizeof(temp), "%6.2f", signal_V_single->basic->sogi->alpha[0]);
+        OLED_ShowString(86, 60, (uint8_t *)temp, 12);
+
+        memset(temp, 0, sizeof(temp));
+        snprintf(temp, sizeof(temp), "%6.2f", signal_V->basic->clarke_alpha);
+        OLED_ShowString(86, 48, (uint8_t *)temp, 12);
+
         // 显示设置
         memset(temp, 0, sizeof(temp));
         OLED_ShowString(0, 96, (uint8_t *)"Set V(V)  C(A) PF", 12);
@@ -211,8 +247,8 @@ void StartKeyTask(void *argument)
         /* 按键按下 */
         if (isKEY0 || isKEY1 || isKEY2 || isKEY3)
         {
-            osDelay(50); /* 消抖 */
-            if (isKEY3)  // 切换运行状态
+            osDelay(100); /* 消抖 */
+            if (isKEY3)   // 切换运行状态
             {
                 while (isKEY3)
                     ;
@@ -220,19 +256,28 @@ void StartKeyTask(void *argument)
             }
             else if (isKEY2) // 切换设置模式
             {
-                while (isKEY2)
-                    ;
-                switch (setMode)
+                osDelay(500);
+                if (isKEY2) // 如果长按则切换输出模式
                 {
-                case VOLT_SET:
-                    setMode = CURR_SET;
-                    break;
-                case CURR_SET:
-                    setMode = PF_SET;
-                    break;
-                case PF_SET:
-                    setMode = VOLT_SET;
-                    break;
+                    if (inputMode == DC)
+                        outputMode = (outputMode == AC_SINGLE) ? AC_THREE : AC_SINGLE;
+                    while (isKEY2)
+                        ;
+                }
+                else // 短按切换设置模式
+                {
+                    switch (setMode)
+                    {
+                    case VOLT_SET:
+                        setMode = CURR_SET;
+                        break;
+                    case CURR_SET:
+                        setMode = PF_SET;
+                        break;
+                    case PF_SET:
+                        setMode = VOLT_SET;
+                        break;
+                    }
                 }
             }
             else if (isKEY1) // 增加数值
@@ -299,18 +344,112 @@ void StartDCSampingTask(void *argument)
 {
     /* USER CODE BEGIN StartDCSampingTask */
     UNUSED(argument);
-    INA228_config(INA228_0); /* 配置INA228_0传感器 */
-    INA228_config(INA228_1); /* 配置INA228_1传感器 */
+    INA228_config(INA228_0);       /* 配置INA228_0传感器 */
+    INA228_config(INA228_1);       /* 配置INA228_1传感器 */
+    HAL_TIM_Base_Start_IT(&htim2); /* 启动定时器2 */
     /* Infinite loop */
     for (;;)
     {
-        dcVolt = INA228_getVBUS_V(INA228_0);       /* 获取直流电压 */
-        dcCurr = INA228_getCURRENT_A(INA228_0);    /* 获取直流电流 */
-        dcMedVolt = INA228_getVBUS_V(INA228_1);    /* 获取中间直流电压 */
-        dcMedCurr = INA228_getCURRENT_A(INA228_1); /* 获取中间直流电流 */
-        osDelay(5);
+
+        osDelay(1000);
     }
     /* USER CODE END StartDCSampingTask */
+}
+
+void StartMedDCControl(void *argument)
+{
+    /* USER CODE BEGIN StartMedDCControl */
+    UNUSED(argument);
+
+    PID dcPid;
+    pid_Init(&dcPid, 40.f, 10.f, 0.2f, 11879.f, 1999.f); // PID参数初始化
+    dcPid.out = 11879.0f;
+
+    HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_1);    // 启动PWM输出
+    HAL_TIMEx_PWMN_Start(&htim8, TIM_CHANNEL_1); // 启动PWM输出
+
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
+    HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_1);
+    HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_2);
+    HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_3);
+
+    /* Infinite loop */
+    for (;;)
+    {
+        switch (runState)
+        {
+        case RUN:
+            if (inputMode == DC)
+            {
+                if (outputMode == AC_SINGLE)
+                {
+                    HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_3);
+                    HAL_TIMEx_PWMN_Stop(&htim1, TIM_CHANNEL_3);
+                    pid_incremental(&dcPid, signal_V->basic->rms_a, setVolt); // PID计算
+                }
+                else if (outputMode == AC_THREE)
+                {
+                    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
+                    HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_3);
+                    pid_incremental(&dcPid, signal_V->basic->rms_a, setVolt); // PID计算
+                }
+                else
+                {
+                    runState = FAULT; // 运行状态异常
+                    break;
+                }
+
+                __HAL_TIM_SET_COMPARE(&htim8, TIM_CHANNEL_1, dcPid.out); // 设置PWM占空比
+            }
+            else if (inputMode == AC_SINGLE || inputMode == AC_THREE)
+            {
+                pid_incremental(&dcPid, dcMedVolt, signal_V->basic->rms_a * 1.8f); // PID计算
+                float tmp = dcPid.out / 11879.f;
+                loopI = tmp * 4.f;
+            }
+            else
+            {
+                runState = FAULT; // 运行状态异常
+                break;
+            }
+            enableDrive(); // 使能MOSFET
+            break;
+        case STOP:
+            disableDrive(); // 禁用MOSFET
+            dcPid.out = 11879.0f;
+            break;
+        case FAULT:
+            disableDrive(); // 禁用MOSFET
+            break;
+        default:
+            disableDrive(); // 禁用MOSFET
+            break;
+        }
+        osDelay(10);
+    }
+    /* USER CODE END StartMedDCControl */
+}
+
+void StartDCControlTask(void *argument)
+{
+    /* USER CODE BEGIN StartDCControlTask */
+    UNUSED(argument);
+    PID dcPid;
+    pid_Init(&dcPid, 20.f, 1.f, 0.2f, 11879.f, 3999.f); // PID参数初始化
+    dcPid.out = 5999.f;                                 // 设置初始PWM占空比
+    /* Infinite loop */
+    for (;;)
+    {
+        if (outputMode == DC && runState == RUN)
+        {
+            pid_incremental(&dcPid, setVolt, dcVolt);                // PID计算
+            __HAL_TIM_SET_COMPARE(&htim8, TIM_CHANNEL_1, dcPid.out); // 设置PWM占空比
+        }
+        osDelay(10);
+    }
+    /* USER CODE END StartDCControlTask */
 }
 
 static void userFuncGetChipTemperature(void)

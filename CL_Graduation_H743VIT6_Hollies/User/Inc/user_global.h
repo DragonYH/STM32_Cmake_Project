@@ -3,10 +3,11 @@
 
 #include "ina228.h"
 #include "three_phase_rectifier.h"
+#include "single_phase_rectifier.h"
 
 // 基准值
-#define Ubase (36.f * 1.414f) // 电压基准
-#define Ibase (6.f * 1.414f)  // 电流基准
+#define Ubase 38.f // 电压基准
+#define Ibase 6.f  // 电流基准
 
 // 保护阈值
 #define protection_Udc (90.f) // 直流电压保护阈值
@@ -17,14 +18,19 @@
 // 全局变量声明
 extern const INA228_Handle INA228_0;
 extern const INA228_Handle INA228_1;
-extern float dcVolt;                   // 直流电压
-extern float dcCurr;                   // 直流电流
-extern float setVolt;                  // 输出电压设定值
-extern float setCurr;                  // 输出电流设定值
-extern float setPF;                    // 功率因数设定值
-extern float M;                        // 调制比
-extern three_Phase_Signal_V *signal_V; // 交流电压信号数据
-extern three_Phase_Signal_I *signal_I; // 交流电流信号数据
+extern float dcVolt;                           // 直流电压
+extern float dcCurr;                           // 直流电流
+extern float dcMedVolt;                        // 中间直流电压
+extern float dcMedCurr;                        // 中间直流电流
+extern float setVolt;                          // 输出电压设定值
+extern float setCurr;                          // 输出电流设定值
+extern float setPF;                            // 功率因数设定值
+extern float M;                                // 调制比
+extern float loopI;                            // 电流环电流
+extern three_Phase_Signal_V *signal_V;         // 交流电压信号数据
+extern three_Phase_Signal_I *signal_I;         // 交流电流信号数据
+extern single_Phase_Signal_V *signal_V_single; // 单相交流电压信号数据
+extern single_Phase_Signal_I *signal_I_single; // 单相交流电流信号数据
 
 // 运行状态枚举
 enum run_state
@@ -40,7 +46,8 @@ enum input_output_mode
 {
     DC = 0,        // 直流
     AC_SINGLE = 1, // 单相交流
-    AC_THREE = 2   // 三相交流
+    AC_THREE = 2,  // 三相交流
+    INIT = 3       // 初始化模式
 };
 extern volatile enum input_output_mode inputMode;  // 输入模式
 extern volatile enum input_output_mode outputMode; // 输出模式

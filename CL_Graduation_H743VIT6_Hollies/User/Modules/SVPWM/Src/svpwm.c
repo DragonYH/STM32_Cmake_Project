@@ -15,8 +15,8 @@ static void Duty_Calculation(float Ta, float Tb, float Tc, float Ts);
 void svpwm_Control(float Ualpha, float Ubeta, float Ts)
 {
     // 计算中间变量
-    Ualpha = M * Ualpha;
-    Ubeta = M * Ubeta;
+    Ualpha = M * Ualpha / Ubase; // 标幺化Clarke变换后的α轴电压
+    Ubeta = M * Ubeta / Ubase;   // 标幺化Clarke变换后的β轴电压
 
     float Ualpha_ = 1.7320508f * Ualpha * Ts;
     float Ubeta_ = Ubeta * Ts;
@@ -105,7 +105,7 @@ static void Duty_Calculation(float Ta, float Tb, float Tc, float Ts)
     // 限制占空比在0到5999之间
     for (int i = 0; i < 3; ++i)
     {
-        ccr[i] = fminf(TIM_PERIOD, fmaxf(0, ccr[i]));
+        ccr[i] = fminf(TIM_PERIOD, fmaxf(50, ccr[i]));
     }
 
     // 更新TIM寄存器

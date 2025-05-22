@@ -6,5 +6,7 @@ void StartChipTemperatureTask(void *argument);
 void StartOledDisplayTask(void *argument);
 void StartKeyTask(void *argument);
 void StartDCSampingTask(void *argument);
+void StartMedDCControl(void *argument);
+void StartDCControlTask(void *argument);
 
 #endif

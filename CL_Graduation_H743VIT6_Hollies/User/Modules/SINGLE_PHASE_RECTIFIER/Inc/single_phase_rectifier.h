@@ -4,10 +4,6 @@
 #include "pid.h"
 #include "main.h"
 
-/* 基准值 */
-#define Ubase (30.f * 1.414f) /* 电压基准 */
-#define Ibase (6.f * 1.414f)  /* 电流基准 */
-
 /* sogi结构体 */
 typedef struct Sogi
 {
@@ -73,9 +69,9 @@ typedef struct single_Phase_Signal_I
 } single_Phase_Signal_I;
 
 void single_Phase_Init_V(single_Phase_Signal_V **signal, float f, uint16_t F);
-void single_Phase_Control_V(single_Phase_Signal_V *signal_V);
+void single_Phase_PLL_V(single_Phase_Signal_V *signal_V);
 void single_Phase_Init_I(single_Phase_Signal_I **signal, float f, uint16_t F);
-void single_Phase_Control_I(single_Phase_Signal_I *signal_I, single_Phase_Signal_V *signal_V, float Iset, float PF);
+void single_Phase_Loop_I(single_Phase_Signal_I *signal_I, single_Phase_Signal_V *signal_V, float Iset, float PF);
 void single_Phase_Free_V(single_Phase_Signal_V *signal);
 void single_Phase_Free_I(single_Phase_Signal_I *signal);
 

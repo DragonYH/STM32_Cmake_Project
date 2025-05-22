@@ -2,8 +2,8 @@
  * @Author       : DragonYH 1016633827@qq.com
  * @Date         : 2024-07-26 10:50:02
  * @LastEditors  : DragonYH 1016633827@qq.com
- * @LastEditTime : 2025-05-06 23:12:16
- * @FilePath     : \CL_Graduation_H743IIT6_Hollies\User\Modules\SINGLE_PHASE_RECTIFIER\Src\single_phase_rectifier.c
+ * @LastEditTime : 2025-05-19 05:20:45
+ * @FilePath     : \CL_Graduation_H743VIT6_Hollies\User\Modules\SINGLE_PHASE_RECTIFIER\Src\single_phase_rectifier.c
  * @Description  :
  *
  * Copyright (c) 2024 by DragonYH, All Rights Reserved.
@@ -127,15 +127,18 @@ void single_Phase_Init_I(single_Phase_Signal_I **signal, float f, uint16_t F)
     (*signal)->basic->sogi->a2 = ((*signal)->basic->sogi->x - (*signal)->basic->sogi->y - 4) / ((*signal)->basic->sogi->x + (*signal)->basic->sogi->y + 4);
 
     /* 在调整取值范围时看实际输出值逐渐逼近，防止上电瞬间电流过大 */
-    pid_Init((*signal)->pid_d, 2.f, 0.004f, 0, 0.5f, 0.f);
-    pid_Init((*signal)->pid_q, 0.2f, 0.0003f, 0, 0.0f, -0.5f);
+    float tmp = 3.f * (*signal)->basic->Ts / sqrtf(3);
+    float kp = (*signal)->L / tmp;
+    float ki = 0.15f / tmp;
+    pid_Init((*signal)->pid_d, kp, ki, 0, 10000.f, -10000.f);
+    pid_Init((*signal)->pid_q, kp, ki, 0, 10000.f, -10000.f);
 }
 
 /**
  * @brief 电压锁相控制
  * @param signal_V 电压信号指针
  */
-void single_Phase_Control_V(single_Phase_Signal_V *signal_V)
+void single_Phase_PLL_V(single_Phase_Signal_V *signal_V)
 {
     /* 对信号先进行sogi变换，得到两个相位相差90度的信号 */
     pll_Sogi(signal_V->basic->sogi, signal_V->basic->input);
@@ -146,7 +149,7 @@ void single_Phase_Control_V(single_Phase_Signal_V *signal_V)
     arm_park_f32(signal_V->basic->sogi->alpha[0], signal_V->basic->sogi->beta[0], &signal_V->basic->park_d, &signal_V->basic->park_q, sinTheta, cosTheta);
 
     /* 将park变换后的q送入PI控制器  输入值为设定值和采样值的误差 */
-    pid(signal_V->pid, signal_V->basic->park_q, 0); /* pid的输出值为旋转坐标系角速度 */
+    pid_positional(signal_V->pid, signal_V->basic->park_q, 0); /* pid的输出值为旋转坐标系角速度 */
 
     /* 更新theta */
     signal_V->theta += (signal_V->pid->out + signal_V->basic->omiga0) * signal_V->basic->Ts;
@@ -160,7 +163,7 @@ void single_Phase_Control_V(single_Phase_Signal_V *signal_V)
  * @param Iset 电流设定值(有效值)
  * @param PF 功率因数
  */
-void single_Phase_Control_I(single_Phase_Signal_I *signal_I, single_Phase_Signal_V *signal_V, float Iset, float PF)
+void single_Phase_Loop_I(single_Phase_Signal_I *signal_I, single_Phase_Signal_V *signal_V, float Iset, float PF)
 {
     /* 对信号先进行sogi变换，得到两个相位相差90度的信号 */
     pll_Sogi(signal_I->basic->sogi, signal_I->basic->input);
@@ -174,13 +177,13 @@ void single_Phase_Control_I(single_Phase_Signal_I *signal_I, single_Phase_Signal
     /* PI控制 */
     float PFTheta = asinf(PF);
 
-    float Ipeak = Iset * 1.414f / Ibase;
+    float Ipeak = Iset * 1.414f;
 
-    float Ivalue = Ipeak * arm_sin_f32(PFTheta); /* 电流大小 */
-    pid(signal_I->pid_d, Ivalue, signal_I->basic->park_d);
+    float Ivalue = Ipeak * arm_sin_f32(PFTheta); /* 有功分量 */
+    pid_positional(signal_I->pid_d, Ivalue, signal_I->basic->park_d);
 
-    float Iphase = Ipeak * arm_cos_f32(PFTheta) * (signal_I->CorL ? 1 : -1); /* 电流相位 */
-    pid(signal_I->pid_q, Iphase, signal_I->basic->park_q);
+    float Iphase = Ipeak * arm_cos_f32(PFTheta) * (signal_I->CorL ? 1 : -1); /* 无功分量 */
+    pid_positional(signal_I->pid_q, Iphase, signal_I->basic->park_q);
 
     /* 解耦调制 */
     float Uabd = signal_V->basic->park_d - signal_I->pid_d->out + signal_I->basic->park_q * signal_I->basic->omiga0 * signal_I->L;

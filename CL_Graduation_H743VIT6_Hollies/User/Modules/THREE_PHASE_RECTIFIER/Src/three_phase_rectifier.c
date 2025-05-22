@@ -86,8 +86,11 @@ void three_Phase_Init_I(three_Phase_Signal_I **signal, float f, uint16_t F)
     (*signal)->L = 0.001f; // 1mH
 
     // 在调整取值范围时看实际输出值逐渐逼近，防止上电瞬间电流过大
-    pid_Init((*signal)->pid_d, 1.8f, 0.03f, 0, 0.2f, -0.4f);
-    pid_Init((*signal)->pid_q, 1.8f, 0.03f, 0, 0.2f, -0.2f);
+    float tmp = 3.f * (*signal)->basic->Ts / sqrtf(3);
+    float kp = (*signal)->L / tmp;
+    float ki = 0.15f / tmp;
+    pid_Init((*signal)->pid_d, kp, ki, 0, 10000.f, -10000.f);
+    pid_Init((*signal)->pid_q, kp, ki, 0, 10000.f, -10000.f);
 }
 /**
  * @brief 电压锁相控制
@@ -102,7 +105,7 @@ void three_Phase_PLL_V(three_Phase_Signal_V *signal_V)
     arm_park_f32(signal_V->basic->clarke_alpha, signal_V->basic->clarke_beta, &signal_V->basic->park_d, &signal_V->basic->park_q, arm_sin_f32(signal_V->theta), arm_cos_f32(signal_V->theta));
 
     // 将park变换后的q送入PI控制器  输入值为设定值和采样值的误差
-    pid(signal_V->pid, signal_V->basic->park_q, 0); // pid的输出值为旋转坐标系角速度
+    pid_positional(signal_V->pid, signal_V->basic->park_q, 0); // pid的输出值为旋转坐标系角速度
 
     // 更新theta
     signal_V->theta += (signal_V->pid->out + signal_V->basic->omiga0) * signal_V->basic->Ts;
@@ -131,11 +134,11 @@ void three_Phase_Loop_I(three_Phase_Signal_I *signal_I, three_Phase_Signal_V *si
     PF = fabsf(PF);                    // 取绝对值
     float PFTheta = asinf(PF);
 
-    float Ivalue = Iset * 1.414f / Ibase;
-    pid(signal_I->pid_d, Ivalue * arm_sin_f32(PFTheta), signal_I->basic->park_d); // 电流大小
+    float Ivalue = Iset * 1.414f;
+    pid_positional(signal_I->pid_d, Ivalue * arm_sin_f32(PFTheta), signal_I->basic->park_d); // 有功分量
 
     float Iphase = Ivalue * arm_cos_f32(PFTheta) * (signal_I->CorL ? 1 : -1);
-    pid(signal_I->pid_q, Iphase, signal_I->basic->park_q); // 电流相位
+    pid_positional(signal_I->pid_q, Iphase, signal_I->basic->park_q); // 无功分量
 
     // 解耦调制
     float Uabd = signal_V->basic->park_d - signal_I->pid_d->out + signal_I->basic->park_q * signal_I->basic->omiga0 * signal_I->L;
